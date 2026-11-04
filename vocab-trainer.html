@@ -12,9 +12,158 @@
 <main><header class="top"><span>YOUR DAILY VOCABULARY PRACTICE</span><span class="pill" id="day-badge">DAY 01</span></header><div id="notice" class="notice" role="status"></div><div id="view"><p class="loading">正在读取词库…</p></div><footer>VCE 数学词汇训练 · 本地优先 · 无需账户</footer></main></div>
 <script>
 'use strict';
+// Built-in vocabulary; keep learning state separate from these source records.
+const BUILTIN_VOCAB = [
+  {"word": "tangent", "zh": "切线", "section": "18A"},
+  {"word": "tangent line", "zh": "切线", "section": "18A"},
+  {"word": "normal", "zh": "法线", "section": "18A"},
+  {"word": "normal line", "zh": "法线", "section": "18A"},
+  {"word": "gradient", "zh": "斜率", "section": "18A"},
+  {"word": "slope", "zh": "斜率", "section": "18A"},
+  {"word": "point of tangency", "zh": "切点", "section": "18A"},
+  {"word": "equation of the tangent", "zh": "切线方程", "section": "18A"},
+  {"word": "equation of the normal", "zh": "法线方程", "section": "18A"},
+  {"word": "parallel", "zh": "平行的", "section": "18A"},
+  {"word": "perpendicular", "zh": "垂直的", "section": "18A"},
+  {"word": "gradient function", "zh": "导函数(斜率函数)", "section": "18A"},
+  {"word": "substitute into", "zh": "代入", "section": "18A"},
+  {"word": "simplify", "zh": "化简", "section": "18A"},
+  {"word": "verify", "zh": "验证", "section": "18A"},
+  {"word": "the curve with equation", "zh": "方程为……的曲线", "section": "18A"},
+  {"word": "intersection point", "zh": "交点", "section": "18A"},
+  {"word": "simultaneous equations", "zh": "联立方程", "section": "18A"},
+  {"word": "non-zero", "zh": "非零的", "section": "18A"},
+  {"word": "average rate of change", "zh": "平均变化率", "section": "18B"},
+  {"word": "instantaneous rate of change", "zh": "瞬时变化率", "section": "18B"},
+  {"word": "derivative", "zh": "导数", "section": "18B"},
+  {"word": "rate of increase", "zh": "增加率", "section": "18B"},
+  {"word": "rate of decrease", "zh": "减少率", "section": "18B"},
+  {"word": "with respect to", "zh": "关于(对)……", "section": "18B"},
+  {"word": "rate of change of ... with respect to ...", "zh": "……关于……的变化率", "section": "18B"},
+  {"word": "as x increases", "zh": "随着x的增大", "section": "18B"},
+  {"word": "units of", "zh": "……的单位", "section": "18B"},
+  {"word": "given that", "zh": "已知", "section": "18B"},
+  {"word": "stationary point", "zh": "驻点", "section": "18C"},
+  {"word": "zero gradient", "zh": "零斜率", "section": "18C"},
+  {"word": "horizontal tangent", "zh": "水平切线", "section": "18C"},
+  {"word": "coordinates", "zh": "坐标", "section": "18C"},
+  {"word": "parameter", "zh": "参数", "section": "18C"},
+  {"word": "constant", "zh": "常数", "section": "18C"},
+  {"word": "for what values of x", "zh": "当x取何值时", "section": "18C"},
+  {"word": "such that", "zh": "使得", "section": "18C"},
+  {"word": "find the value of k", "zh": "求k的值", "section": "18C"},
+  {"word": "solve f'(x)=0", "zh": "解方程f'(x)=0", "section": "18C"},
+  {"word": "x-intercept", "zh": "与x轴的交点", "section": "18C"},
+  {"word": "y-intercept", "zh": "与y轴的交点", "section": "18C"},
+  {"word": "in terms of", "zh": "用……表示", "section": "18C"},
+  {"word": "where", "zh": "其中(定义条件)", "section": "18C"},
+  {"word": "local maximum point", "zh": "局部极大点", "section": "18D"},
+  {"word": "local minimum point", "zh": "局部极小点", "section": "18D"},
+  {"word": "stationary point of inflection", "zh": "驻拐点", "section": "18D"},
+  {"word": "turning point", "zh": "转折点", "section": "18D"},
+  {"word": "gradient chart", "zh": "导数符号表", "section": "18D"},
+  {"word": "increasing function", "zh": "递增函数", "section": "18D"},
+  {"word": "decreasing function", "zh": "递减函数", "section": "18D"},
+  {"word": "sketch the graph", "zh": "画出图像草图", "section": "18D"},
+  {"word": "nature of the stationary point", "zh": "驻点的类型(性质)", "section": "18D"},
+  {"word": "determine the nature", "zh": "判断类型", "section": "18D"},
+  {"word": "sign of the derivative", "zh": "导数的符号", "section": "18D"},
+  {"word": "interval", "zh": "区间", "section": "18D"},
+  {"word": "label", "zh": "标注", "section": "18D"},
+  {"word": "domain", "zh": "定义域", "section": "18D"},
+  {"word": "range", "zh": "值域", "section": "18D"},
+  {"word": "maximum value", "zh": "最大值", "section": "18E"},
+  {"word": "minimum value", "zh": "最小值", "section": "18E"},
+  {"word": "absolute maximum", "zh": "绝对最大值", "section": "18E"},
+  {"word": "absolute minimum", "zh": "绝对最小值", "section": "18E"},
+  {"word": "optimisation", "zh": "最优化", "section": "18E"},
+  {"word": "constraint", "zh": "约束条件", "section": "18E"},
+  {"word": "endpoint", "zh": "端点", "section": "18E"},
+  {"word": "perimeter", "zh": "周长", "section": "18E"},
+  {"word": "area", "zh": "面积", "section": "18E"},
+  {"word": "length", "zh": "长度", "section": "18E"},
+  {"word": "width", "zh": "宽度", "section": "18E"},
+  {"word": "fence / fencing", "zh": "围栏", "section": "18E"},
+  {"word": "enclosure", "zh": "围成的区域", "section": "18E"},
+  {"word": "model", "zh": "建模/模型", "section": "18E"},
+  {"word": "maximum area", "zh": "最大面积", "section": "18E"},
+  {"word": "minimum cost", "zh": "最小成本", "section": "18E"},
+  {"word": "occurs when", "zh": "当……时取得", "section": "18E"},
+  {"word": "position", "zh": "位置", "section": "18F"},
+  {"word": "origin", "zh": "原点", "section": "18F"},
+  {"word": "displacement", "zh": "位移", "section": "18F"},
+  {"word": "distance travelled", "zh": "路程", "section": "18F"},
+  {"word": "average velocity", "zh": "平均速度", "section": "18F"},
+  {"word": "instantaneous velocity", "zh": "瞬时速度", "section": "18F"},
+  {"word": "speed", "zh": "速率", "section": "18F"},
+  {"word": "average speed", "zh": "平均速率", "section": "18F"},
+  {"word": "acceleration", "zh": "加速度", "section": "18F"},
+  {"word": "at rest", "zh": "静止", "section": "18F"},
+  {"word": "change of direction", "zh": "运动方向改变", "section": "18F"},
+  {"word": "particle", "zh": "质点/粒子", "section": "18F"},
+  {"word": "moves in a straight line", "zh": "沿直线运动", "section": "18F"},
+  {"word": "initially", "zh": "初始时(t=0时)", "section": "18F"},
+  {"word": "at time t", "zh": "在时刻t", "section": "18F"},
+  {"word": "after t seconds", "zh": "t秒之后", "section": "18F"},
+  {"word": "metres from the origin", "zh": "距原点……米", "section": "18F"},
+  {"word": "in the positive direction", "zh": "沿正方向", "section": "18F"},
+  {"word": "in the first ... seconds", "zh": "在最初的……秒内", "section": "18F"},
+  {"word": "returns to the origin", "zh": "返回原点", "section": "18F"},
+  {"word": "at the origin", "zh": "在原点处", "section": "18F"},
+  {"word": "family of functions", "zh": "函数族", "section": "18G"},
+  {"word": "transformation", "zh": "图像变换", "section": "18G"},
+  {"word": "translation", "zh": "平移", "section": "18G"},
+  {"word": "horizontal translation", "zh": "水平平移", "section": "18G"},
+  {"word": "vertical translation", "zh": "竖直平移", "section": "18G"},
+  {"word": "dilation", "zh": "伸缩", "section": "18G"},
+  {"word": "image", "zh": "变换后的图像", "section": "18G"},
+  {"word": "reflection", "zh": "反射", "section": "18G"},
+  {"word": "reflection in the x-axis", "zh": "关于x轴对称", "section": "18G"},
+  {"word": "reflection in the y-axis", "zh": "关于y轴对称", "section": "18G"},
+  {"word": "dilated by factor k", "zh": "以比例因子k伸缩", "section": "18G"},
+  {"word": "from the y-axis", "zh": "从y轴方向", "section": "18G"},
+  {"word": "from the x-axis", "zh": "从x轴方向", "section": "18G"},
+  {"word": "in the positive direction of the x-axis", "zh": "沿x轴正方向", "section": "18G"},
+  {"word": "mapped to", "zh": "被映射到", "section": "18G"},
+  {"word": "dilation factor", "zh": "伸缩因子", "section": "18G"},
+  {"word": "image of the point", "zh": "点的像", "section": "18G"},
+  {"word": "Newton's method", "zh": "牛顿法", "section": "18H"},
+  {"word": "root / zero", "zh": "根／零点", "section": "18H"},
+  {"word": "approximate solution", "zh": "近似解", "section": "18H"},
+  {"word": "initial approximation", "zh": "初始近似值", "section": "18H"},
+  {"word": "iteration", "zh": "迭代", "section": "18H"},
+  {"word": "iterative formula", "zh": "迭代公式", "section": "18H"},
+  {"word": "convergence", "zh": "收敛", "section": "18H"},
+  {"word": "accuracy", "zh": "精度", "section": "18H"},
+  {"word": "decimal places", "zh": "小数位数", "section": "18H"},
+  {"word": "pseudocode", "zh": "伪代码", "section": "18H"},
+  {"word": "approximation", "zh": "近似值", "section": "18H"},
+  {"word": "approximately equal to", "zh": "约等于(≈)", "section": "18H"},
+  {"word": "correct to two decimal places", "zh": "精确到两位小数", "section": "18H"},
+  {"word": "converges to", "zh": "收敛于", "section": "18H"},
+  {"word": "tangent line approximation", "zh": "切线近似", "section": "18H"},
+  {"word": "one application of Newton's method", "zh": "用一次牛顿法", "section": "18H"},
+  {"word": "the equation ... has a root between ... and ...", "zh": "方程……在……与……之间有根", "section": "18H"},
+  {"word": "find", "zh": "求", "section": "cmd"},
+  {"word": "determine", "zh": "确定/求出", "section": "cmd"},
+  {"word": "state", "zh": "直接写出(无需过程)", "section": "cmd"},
+  {"word": "show that", "zh": "证明/验证(必须写过程)", "section": "cmd"},
+  {"word": "hence", "zh": "由此(用上一问结论)", "section": "cmd"},
+  {"word": "hence find", "zh": "由此求出", "section": "cmd"},
+  {"word": "sketch", "zh": "画草图", "section": "cmd"},
+  {"word": "label", "zh": "标注", "section": "cmd"},
+  {"word": "explain", "zh": "解释", "section": "cmd"},
+  {"word": "find, correct to 2 decimal places", "zh": "求出并精确到两位小数", "section": "cmd"},
+  {"word": "find the exact value", "zh": "求精确值(不要小数近似)", "section": "cmd"},
+  {"word": "it follows that", "zh": "由此可得", "section": "cmd"},
+  {"word": "let ... be", "zh": "设……为", "section": "cmd"},
+  {"word": "show all working", "zh": "写出全部过程", "section": "cmd"},
+  {"word": "otherwise", "zh": "否则", "section": "cmd"}
+];
 const KEY='vce-vocab-trainer-v1', DAY=86400000, BASE=[1,3,7,16,35];
-let db=null, screen='home', clock=null, question=null, locked=false, feedbackTimer=null, loadError='';
+let db=null, screen='home', clock=null, question=null, locked=false, feedbackTimer=null;
 const $=id=>document.getElementById(id), esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const createWord=({word,zh,section})=>({id:JSON.stringify([word,zh,section]),word,zh,section,ef:2.5,interval:0,reps:0,due:0,wrongCount:0,history:[]});
 const fresh=()=>({version:1,settings:{limit:50,day:1},words:[],days:{},session:null,reports:[]});
 function notify(s=''){ $('notice').textContent=s; }
 function save(next=db){try{localStorage.setItem(KEY,JSON.stringify(next));db=next;return true;}catch(e){notify('无法保存本地数据（可能空间不足或浏览器禁止存储）。本次操作未提交，请导出备份并检查浏览器设置。');return false;}}
@@ -27,14 +176,16 @@ function parseCSV(text){
  else{if(closed&&c.trim())throw Error('CSV 引号后存在多余字符');if(!closed)field+=c;}}
  if(quoted)throw Error('CSV 引号未闭合');if(field||row.length||closed){row.push(field);rows.push(row);}
  rows=rows.filter(r=>r.some(v=>v.trim()));const header=rows.shift()?.map(x=>x.trim());if(!header||header.join(',')!=='word,zh,section')throw Error('CSV 列必须为 word,zh,section');
- const seen=new Set();return rows.map((r,i)=>{if(r.length!==3||r.some(v=>!v.trim()))throw Error(`CSV 第 ${i+2} 行缺失字段`);const [word,zh,section]=r.map(x=>x.trim()),id=JSON.stringify([word,zh,section]);if(seen.has(id))throw Error(`CSV 第 ${i+2} 行重复`);seen.add(id);return {id,word,zh,section,ef:2.5,interval:0,reps:0,due:0,wrongCount:0,history:[]};});
+ const seen=new Set();return rows.map((r,i)=>{if(r.length!==3||r.some(v=>!v.trim()))throw Error(`CSV 第 ${i+2} 行缺失字段`);const [word,zh,section]=r.map(x=>x.trim()),id=JSON.stringify([word,zh,section]);if(seen.has(id))throw Error(`CSV 第 ${i+2} 行重复`);seen.add(id);return createWord({word,zh,section});});
 }
-async function importCSV(replace=false){
- if(replace&&!confirm('重新导入会覆盖词库，并清空学习记录、Day 配额与日报。继续吗？'))return;
- try{const res=await fetch('./vocab.csv',{cache:'no-store'});if(!res.ok)throw Error(`读取失败：HTTP ${res.status}`);const words=parseCSV(await res.text());if(!words.length)throw Error('词库为空');const next=fresh();next.words=words;if(db)next.settings={...db.settings};if(!save(next))return;loadError='';notify(`已导入 ${words.length} 个词。`);show('home');}
- catch(e){loadError=e.message;notify(`导入失败：${e.message}。请通过 HTTP 服务打开网页，确认同目录有 vocab.csv；也可选择本地 CSV 文件。`);if(!db)renderImport();}
+function replaceVocabulary(words){const next=fresh();next.words=words;if(db)next.settings={...db.settings};if(!save(next))return false;notify(`已导入 ${words.length} 个词。`);show('home');return true;}
+function initializeBuiltin(replace=false){if(replace&&!confirm('恢复内置词库会覆盖词库，并清空学习记录、Day 配额与日报。继续吗？'))return;replaceVocabulary(BUILTIN_VOCAB.map(createWord));}
+function importCustomCSV(){
+ const input=document.createElement('input');input.type='file';input.accept='.csv,text/csv';
+ input.onchange=async()=>{const file=input.files[0];if(!file)return;try{const words=parseCSV(await file.text());if(!words.length)throw Error('词库为空');if(!confirm('导入自定义 CSV 会覆盖词库，并清空学习记录、Day 配额与日报。继续吗？'))return;replaceVocabulary(words);}catch(e){notify(`导入失败：${e.message}。原有词库与学习记录未改动。`);}};
+ input.click();
 }
-function renderImport(){$('view').innerHTML='<div class="eyebrow">GET STARTED</div><h1>导入你的数学词库</h1><p class="subtitle">读取同目录 vocab.csv，数据只存储在此浏览器。</p><button id="retry" class="primary">重试读取 vocab.csv</button><label>或选择本地 CSV<input id="csv-file" type="file" accept=".csv,text/csv"></label>';$('retry').onclick=()=>importCSV();$('csv-file').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const n=fresh();n.words=parseCSV(await f.text());if(!n.words.length)throw Error('词库为空');if(save(n)){notify(`已导入 ${n.words.length} 个词。`);show('home');}}catch(err){notify(err.message);}};}
+function renderImport(){$('view').innerHTML='<div class="eyebrow">GET STARTED</div><h1>你的数学词库已就绪</h1><p class="subtitle">内置 145 个词，无需联网。也可导入包含 word,zh,section 三列的自定义 CSV。</p><div class="actions"><button id="retry" class="primary">使用内置词库</button><button id="custom-csv">导入自定义 CSV</button></div>';$('retry').onclick=()=>initializeBuiltin();$('custom-csv').onclick=importCustomCSV;}
 function dayInfo(){return db.days[db.settings.day]||{newIds:[]};}
 function reviewWords(now=Date.now()){return db.words.filter(w=>w.history.length&&(w.wrongCount>=2||w.due<=now)).sort((a,b)=>(b.wrongCount>=2)-(a.wrongCount>=2)||a.due-b.due);}
 function shuffled(arr){const out=[...arr];for(let i=out.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[out[i],out[j]]=[out[j],out[i]];}return out;}
@@ -45,8 +196,8 @@ function renderHome(){const learned=db.words.filter(w=>w.history.length).length,
  $('view').innerHTML=`<div class="eyebrow">DAILY PRACTICE / DAY ${esc(db.settings.day)}</div><h1>每天一点，熟悉每一个词。</h1><p class="subtitle">先巩固，再前进。用三秒钟，把数学语言变成直觉。</p><div class="card hero"><div><h2>今天，从一次专注开始</h2><p>高危词优先 → 到期复习 → 今日新词。<br>随时结束，进度会自动保存在本地。</p><div class="actions"><button id="start" class="primary" ${!due&&!quota?'disabled':''}>开始今日训练 &nbsp; ↗</button><span class="tiny muted">今日剩余 ${quota} 个新词名额</span></div></div><div class="hero-symbol">ƒ(x)</div></div><div class="stats"><div class="stat"><span class="label">待复习 / 含高危词</span><span class="value">${due}</span><span class="tiny muted">先唤醒已有记忆</span></div><div class="stat"><span class="label">Day ${db.settings.day} 新词进度</span><span class="value">${used}<span class="tiny muted"> / ${db.settings.limit}</span></span><span class="tiny muted">多次训练累计计数</span></div><div class="stat"><span class="label">累计接触词汇</span><span class="value">${learned}<span class="tiny muted"> / ${db.words.length}</span></span><span class="tiny muted">一步一步，持续积累</span></div></div><div class="card"><div class="row"><h3>你的词库</h3><span class="tiny muted">${db.words.length} WORDS</span></div><div class="progress"><span style="width:${learned/db.words.length*100}%"></span></div><div class="section-grid">${[...new Set(db.words.map(w=>w.section))].map(s=>`<span class="section-tag">${esc(s)} · ${db.words.filter(w=>w.section===s).length}</span>`).join('')}</div></div>`;
  $('start').onclick=startSession;
 }
-function renderSettings(){const s=db.settings;$('view').innerHTML=`<div class="eyebrow">PREFERENCES</div><h1>按你的节奏学习。</h1><p class="subtitle">Day 为手动学习日编号；跨午夜不会自动推进。</p><form id="settings" class="card"><h2>训练设置</h2><label>每天新词上限<input id="limit" type="number" min="1" max="10000" step="1" required value="${s.limit}"></label><label>当前 Day<input id="day" type="number" min="1" max="100000" step="1" required value="${s.day}"></label><p class="help">切回已有 Day 会沿用该 Day 的新词计数。到期复习使用真实时间，不受 Day 编号影响。</p><button class="primary" type="submit">保存设置</button></form><div class="card" style="margin-top:20px"><h2>词库与数据</h2><p class="muted">重新导入同目录 vocab.csv 将覆盖全部学习记录。建议先导出 JSON 备份。</p><div class="actions"><button id="backup">导出 JSON 备份</button><button id="reimport">重新导入</button></div></div><details style="margin-top:24px"><summary>调度规则</summary><p class="help">EF 初始 2.5、最低 1.3。快速答对：reps + 1，基础间隔 1、3、7、16、35 天乘以本次 EF；后续为上一间隔 × EF。3–6 秒答对：本次间隔增量减半，至少 1 天。失败（选错或超过 6 秒）：reps 归零，10 分钟后复习，累计错误 + 1。快速答对后 EF + 0.1，慢答后 EF − 0.14，失败后 EF − 0.2。累计错误 ≥ 2 的词每次 session 强制出现一次。</p></details>`;
- $('settings').onsubmit=e=>{e.preventDefault();const limit=Number($('limit').value),day=Number($('day').value);if(!Number.isInteger(limit)||limit<1||limit>10000||!Number.isInteger(day)||day<1||day>100000){notify('请输入有效的正整数。');return;}const n=clone();n.settings={limit,day};if(save(n)){notify('设置已保存。');show('settings');}};$('reimport').onclick=()=>importCSV(true);$('backup').onclick=exportBackup;
+function renderSettings(){const s=db.settings;$('view').innerHTML=`<div class="eyebrow">PREFERENCES</div><h1>按你的节奏学习。</h1><p class="subtitle">Day 为手动学习日编号；跨午夜不会自动推进。</p><form id="settings" class="card"><h2>训练设置</h2><label>每天新词上限<input id="limit" type="number" min="1" max="10000" step="1" required value="${s.limit}"></label><label>当前 Day<input id="day" type="number" min="1" max="100000" step="1" required value="${s.day}"></label><p class="help">切回已有 Day 会沿用该 Day 的新词计数。到期复习使用真实时间，不受 Day 编号影响。</p><button class="primary" type="submit">保存设置</button></form><div class="card" style="margin-top:20px"><h2>词库与数据</h2><p class="muted">已内置 145 个词，无需联网。可选导入含 word,zh,section 三列的 CSV，导入后会覆盖词库及学习记录。建议先导出 JSON 备份。</p><div class="actions"><button id="backup">导出 JSON 备份</button><button id="reimport">导入自定义 CSV</button></div></div><details style="margin-top:24px"><summary>调度规则</summary><p class="help">EF 初始 2.5、最低 1.3。快速答对：reps + 1，基础间隔 1、3、7、16、35 天乘以本次 EF；后续为上一间隔 × EF。3–6 秒答对：本次间隔增量减半，至少 1 天。失败（选错或超过 6 秒）：reps 归零，10 分钟后复习，累计错误 + 1。快速答对后 EF + 0.1，慢答后 EF − 0.14，失败后 EF − 0.2。累计错误 ≥ 2 的词每次 session 强制出现一次。</p></details>`;
+ $('settings').onsubmit=e=>{e.preventDefault();const limit=Number($('limit').value),day=Number($('day').value);if(!Number.isInteger(limit)||limit<1||limit>10000||!Number.isInteger(day)||day<1||day>100000){notify('请输入有效的正整数。');return;}const n=clone();n.settings={limit,day};if(save(n)){notify('设置已保存。');show('settings');}};$('reimport').onclick=importCustomCSV;$('backup').onclick=exportBackup;
 }
 function startSession(){const remaining=Math.max(0,db.settings.limit-dayInfo().newIds.length),reviews=reviewWords(),news=db.words.filter(w=>!w.history.length).slice(0,remaining),n=clone();n.session={id:Date.now(),day:db.settings.day,startedAt:Date.now(),pending:[...reviews.map(w=>({id:w.id,type:'review',forced:w.wrongCount>=2})),...news.map(w=>({id:w.id,type:'new',forced:false}))],answers:[],prev:[]};if(!n.session.pending.length){notify('当前没有待学词。可稍后复习或在设置中调整 Day。');return;}if(save(n)){notify();show('study');}}
 function renderQuestion(){const s=db.session;if(!s)return show('home');if(!s.pending.length)return finishSession();const item=s.pending[0],w=db.words.find(w=>w.id===item.id),options=makeOptions(w,s.prev);
@@ -72,7 +223,7 @@ function renderReport(){const r=db.reports.at(-1);if(!r){$('view').innerHTML='<d
 }
 function exportBackup(){const blob=new Blob([JSON.stringify({...db,exportedAt:new Date().toISOString()},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`vocab-trainer-day-${db.settings.day}-${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
 function validateStored(d){if(d?.version!==1||!Array.isArray(d.words)||!d.words.length||!d.settings||!Number.isInteger(d.settings.limit)||d.settings.limit<1||!Number.isInteger(d.settings.day)||d.settings.day<1||!d.days||!Array.isArray(d.reports))throw Error('本地数据结构不完整');const ids=new Set();for(const w of d.words){if(typeof w.id!=='string'||ids.has(w.id)||!['word','zh','section'].every(k=>typeof w[k]==='string'&&w[k].trim())||!Array.isArray(w.history)||!['ef','interval','reps','due','wrongCount'].every(k=>Number.isFinite(w[k])&&w[k]>=0))throw Error('本地词库损坏');ids.add(w.id);}if(d.session&&(!Array.isArray(d.session.pending)||!Array.isArray(d.session.answers)||!Array.isArray(d.session.prev)||d.session.pending.some(x=>!ids.has(x.id))))throw Error('本地 session 损坏');return d;}
-async function init(){for(const name of ['home','report','settings'])$('nav-'+name).onclick=()=>show(name);let raw;try{raw=localStorage.getItem(KEY);}catch{notify('浏览器禁止访问 localStorage，请允许本地存储后重试。');renderImport();return;}if(raw){try{db=validateStored(JSON.parse(raw));show(db.session?'study':'home');}catch(e){notify(e.message+'。未自动覆盖原始数据；请先下载保留，再重新导入。');$('view').innerHTML='<h1>本地数据无法读取</h1><button id="raw">下载原始数据</button> <button id="reset">重新导入 CSV</button>';$('raw').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([raw],{type:'application/json'}));a.download='vocab-trainer-recovery.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);};$('reset').onclick=()=>importCSV(true);}}else await importCSV();}
+async function init(){for(const name of ['home','report','settings'])$('nav-'+name).onclick=()=>show(name);let raw;try{raw=localStorage.getItem(KEY);}catch{notify('浏览器禁止访问 localStorage，请允许本地存储后重试。');renderImport();return;}if(raw){try{db=validateStored(JSON.parse(raw));show(db.session?'study':'home');}catch(e){notify(e.message+'。未自动覆盖原始数据；请先下载保留，再重新导入。');$('view').innerHTML='<h1>本地数据无法读取</h1><button id="raw">下载原始数据</button> <button id="reset">恢复内置词库</button> <button id="custom-csv">导入自定义 CSV</button>';$('raw').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([raw],{type:'application/json'}));a.download='vocab-trainer-recovery.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);};$('reset').onclick=()=>initializeBuiltin(true);$('custom-csv').onclick=importCustomCSV;}}else initializeBuiltin();}
 document.addEventListener('keydown',e=>{if(screen!=='study'||e.repeat||e.ctrlKey||e.metaKey||e.altKey)return;if(['1','2','3'].includes(e.key)){e.preventDefault();answer(Number(e.key)-1);}else if(e.key==='Enter'&&locked&&$('next')&&!$('next').disabled){e.preventDefault();$('next').click();}});
 init();
 </script>
