@@ -1,0 +1,146 @@
+﻿word,zh,section
+tangent,切线,18A
+tangent line,切线,18A
+normal,法线,18A
+normal line,法线,18A
+gradient,斜率,18A
+slope,斜率,18A
+point of tangency,切点,18A
+equation of the tangent,切线方程,18A
+equation of the normal,法线方程,18A
+parallel,平行的,18A
+perpendicular,垂直的,18A
+gradient function,导函数(斜率函数),18A
+substitute into,代入,18A
+simplify,化简,18A
+verify,验证,18A
+the curve with equation,方程为……的曲线,18A
+intersection point,交点,18A
+simultaneous equations,联立方程,18A
+non-zero,非零的,18A
+average rate of change,平均变化率,18B
+instantaneous rate of change,瞬时变化率,18B
+derivative,导数,18B
+rate of increase,增加率,18B
+rate of decrease,减少率,18B
+with respect to,关于(对)……,18B
+rate of change of ... with respect to ...,……关于……的变化率,18B
+as x increases,随着x的增大,18B
+units of,……的单位,18B
+given that,已知,18B
+stationary point,驻点,18C
+zero gradient,零斜率,18C
+horizontal tangent,水平切线,18C
+coordinates,坐标,18C
+parameter,参数,18C
+constant,常数,18C
+for what values of x,当x取何值时,18C
+such that,使得,18C
+find the value of k,求k的值,18C
+solve f'(x)=0,解方程f'(x)=0,18C
+x-intercept,与x轴的交点,18C
+y-intercept,与y轴的交点,18C
+in terms of,用……表示,18C
+where,其中(定义条件),18C
+local maximum point,局部极大点,18D
+local minimum point,局部极小点,18D
+stationary point of inflection,驻拐点,18D
+turning point,转折点,18D
+gradient chart,导数符号表,18D
+increasing function,递增函数,18D
+decreasing function,递减函数,18D
+sketch the graph,画出图像草图,18D
+nature of the stationary point,驻点的类型(性质),18D
+determine the nature,判断类型,18D
+sign of the derivative,导数的符号,18D
+interval,区间,18D
+label,标注,18D
+domain,定义域,18D
+range,值域,18D
+maximum value,最大值,18E
+minimum value,最小值,18E
+absolute maximum,绝对最大值,18E
+absolute minimum,绝对最小值,18E
+optimisation,最优化,18E
+constraint,约束条件,18E
+endpoint,端点,18E
+perimeter,周长,18E
+area,面积,18E
+length,长度,18E
+width,宽度,18E
+fence / fencing,围栏,18E
+enclosure,围成的区域,18E
+model,建模/模型,18E
+maximum area,最大面积,18E
+minimum cost,最小成本,18E
+occurs when,当……时取得,18E
+position,位置,18F
+origin,原点,18F
+displacement,位移,18F
+distance travelled,路程,18F
+average velocity,平均速度,18F
+instantaneous velocity,瞬时速度,18F
+speed,速率,18F
+average speed,平均速率,18F
+acceleration,加速度,18F
+at rest,静止,18F
+change of direction,运动方向改变,18F
+particle,质点/粒子,18F
+moves in a straight line,沿直线运动,18F
+initially,初始时(t=0时),18F
+at time t,在时刻t,18F
+after t seconds,t秒之后,18F
+metres from the origin,距原点……米,18F
+in the positive direction,沿正方向,18F
+in the first ... seconds,在最初的……秒内,18F
+returns to the origin,返回原点,18F
+at the origin,在原点处,18F
+family of functions,函数族,18G
+transformation,图像变换,18G
+translation,平移,18G
+horizontal translation,水平平移,18G
+vertical translation,竖直平移,18G
+dilation,伸缩,18G
+image,变换后的图像,18G
+reflection,反射,18G
+reflection in the x-axis,关于x轴对称,18G
+reflection in the y-axis,关于y轴对称,18G
+dilated by factor k,以比例因子k伸缩,18G
+from the y-axis,从y轴方向,18G
+from the x-axis,从x轴方向,18G
+in the positive direction of the x-axis,沿x轴正方向,18G
+mapped to,被映射到,18G
+dilation factor,伸缩因子,18G
+image of the point,点的像,18G
+Newton's method,牛顿法,18H
+root / zero,根／零点,18H
+approximate solution,近似解,18H
+initial approximation,初始近似值,18H
+iteration,迭代,18H
+iterative formula,迭代公式,18H
+convergence,收敛,18H
+accuracy,精度,18H
+decimal places,小数位数,18H
+pseudocode,伪代码,18H
+approximation,近似值,18H
+approximately equal to,约等于(≈),18H
+correct to two decimal places,精确到两位小数,18H
+converges to,收敛于,18H
+tangent line approximation,切线近似,18H
+one application of Newton's method,用一次牛顿法,18H
+the equation ... has a root between ... and ...,方程……在……与……之间有根,18H
+find,求,cmd
+determine,确定/求出,cmd
+state,直接写出(无需过程),cmd
+show that,证明/验证(必须写过程),cmd
+hence,由此(用上一问结论),cmd
+hence find,由此求出,cmd
+sketch,画草图,cmd
+label,标注,cmd
+explain,解释,cmd
+"find, correct to 2 decimal places",求出并精确到两位小数,cmd
+find the exact value,求精确值(不要小数近似),cmd
+it follows that,由此可得,cmd
+let ... be,设……为,cmd
+show all working,写出全部过程,cmd
+otherwise,否则,cmd
