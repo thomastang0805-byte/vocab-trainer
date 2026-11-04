@@ -163,40 +163,55 @@ let db=null, screen='home', clock=null, question=null, locked=false, feedbackTim
 const $=id=>document.getElementById(id), esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const createWord=({word,zh,section})=>({id:JSON.stringify([word,zh,section]),word,zh,section,ef:2.5,interval:0,reps:0,due:0,wrongCount:0,history:[]});
 const fresh=()=>({version:1,settings:{limit:50,day:1,autoRead:true,speechRate:1},words:[],days:{},session:null,reports:[]});
-// Use only device-local voices so pronunciation never requires a remote speech service.
-let speechVoice=null,speechUnlocked=false,speechUtterance=null;
-function speechEngine(){try{return typeof window.SpeechSynthesisUtterance==='function'?window.speechSynthesis:null;}catch{return null;}}
+// Chrome loads browser-provided voices asynchronously; an empty list must not block speak().
+let speechVoice=null,speechVoices=[],speechUnlocked=false,speechUtterance=null;
+function speechWarning(error){console.warn('朗读暂不可用：',error?.error||error?.message||error);}
+function speechEngine(){try{return typeof window.SpeechSynthesisUtterance==='function'?window.speechSynthesis:null;}catch(error){speechWarning(error);return null;}}
 function speechRate(){return [0.75,1,1.25].includes(db?.settings.speechRate)?db.settings.speechRate:1;}
-function voiceDescription(){return speechVoice?`${speechVoice.name} (${speechVoice.lang})`:speechEngine()?'设备暂无可用本地语音（静默模式）':'此浏览器不支持朗读（静默模式）';}
+function voiceDescription(){return speechVoice?`${speechVoice.name} (${speechVoice.lang})`:speechEngine()?'浏览器默认语音（语音列表加载中或为空）':'此浏览器不支持朗读（静默模式）';}
+function voiceKey(){return speechVoice?(speechVoice.voiceURI||speechVoice.name)+'|'+speechVoice.lang:'default';}
 function refreshSpeechVoices(){
  try{
-  const voices=(speechEngine()?.getVoices()||[]).filter(v=>v.localService===true);
-  speechVoice=['en-us','en-gb','en-au'].map(lang=>voices.find(v=>v.lang.replace(/_/g,'-').toLowerCase()===lang)).find(Boolean)||voices.find(v=>v.default)||voices[0]||null;
- }catch{speechVoice=null;}
+  speechVoices=Array.from(speechEngine()?.getVoices()||[]);
+  const matches=lang=>speechVoices.filter(v=>v.lang.replace(/_/g,'-').toLowerCase()===lang);
+  speechVoice=matches('en-us').find(v=>v.name==='Google US English')||['en-us','en-gb','en-au'].map(lang=>matches(lang)[0]).find(Boolean)||speechVoices.find(v=>v.default)||null;
+ }catch(error){speechVoices=[];speechVoice=null;speechWarning(error);}
  const label=$('current-voice');if(label)label.textContent=voiceDescription();
 }
-function stopSpeech(){try{speechEngine()?.cancel();}catch{}speechUtterance=null;}
+function stopSpeech(){try{speechEngine()?.cancel();}catch(error){speechWarning(error);}speechUtterance=null;}
 function speakWord(word,automatic=true){
- if(!speechUnlocked||!speechVoice||!word||(automatic&&db?.settings.autoRead===false))return false;
+ if(!speechUnlocked||!word||(automatic&&db?.settings.autoRead===false))return false;
  try{
   const engine=speechEngine();if(!engine)return false;
-  const utterance=new SpeechSynthesisUtterance(word);utterance.voice=speechVoice;utterance.lang=speechVoice.lang;utterance.rate=speechRate();
-  utterance.onend=utterance.onerror=()=>{if(speechUtterance===utterance)speechUtterance=null;};
-  stopSpeech();speechUtterance=utterance;engine.speak(utterance);return true;
- }catch{speechUtterance=null;return false;}
+  refreshSpeechVoices();if(!speechVoices.length)refreshSpeechVoices();
+  const utterance=new SpeechSynthesisUtterance(word);
+  if(speechVoice)utterance.voice=speechVoice;
+  utterance.lang=speechVoice?.lang||'en-US';utterance.rate=speechRate();
+  utterance.onend=()=>{if(speechUtterance===utterance)speechUtterance=null;};
+  utterance.onerror=event=>{
+   if(speechUtterance===utterance){speechUtterance=null;if(question?.word.word===word)question.autoReadAttempted=false;}
+   if(!['canceled','interrupted'].includes(event.error))speechWarning(event);
+  };
+  stopSpeech();speechUtterance=utterance;engine.resume?.();engine.speak(utterance);return true;
+ }catch(error){speechUtterance=null;speechWarning(error);return false;}
 }
 // This shared hook speaks the English prompt independently of the answer UI.
-function autoReadQuestion(){if(question&&!locked&&!question.autoReadAttempted&&db?.settings.autoRead!==false&&speakWord(question.word.word))question.autoReadAttempted=true;}
+function autoReadQuestion(){if(question&&!locked&&!question.autoReadAttempted&&db?.settings.autoRead!==false&&speakWord(question.word.word)){question.autoReadAttempted=true;question.autoReadVoice=voiceKey();}}
 function setupSpeech(){
  refreshSpeechVoices();
- try{speechEngine()?.addEventListener('voiceschanged',()=>{refreshSpeechVoices();autoReadQuestion();});}catch{}
- document.addEventListener('click',function unlock(event){
-  if(!event.isTrusted)return;
-  document.removeEventListener('click',unlock,true);speechUnlocked=true;refreshSpeechVoices();
-  // Prime the local speech engine inside a real user gesture; no audible permission prompt.
-  try{const engine=speechEngine();if(engine&&speechVoice){const prime=new SpeechSynthesisUtterance(' ');prime.voice=speechVoice;prime.lang=speechVoice.lang;prime.volume=0;prime.onerror=()=>{};engine.speak(prime);}}catch{}
+ try{const engine=speechEngine();if(engine)engine.onvoiceschanged=()=>{
+  refreshSpeechVoices();
+  if(question&&!locked&&question.autoReadVoice!==voiceKey())question.autoReadAttempted=false;
   autoReadQuestion();
- },true);
+ };}catch(error){speechWarning(error);}
+ function unlock(event){
+  if(!event.isTrusted)return;
+  window.removeEventListener('pointerdown',unlock,true);window.removeEventListener('click',unlock,true);
+  speechUnlocked=true;refreshSpeechVoices();
+  try{speechEngine()?.resume?.();}catch(error){speechWarning(error);}
+  autoReadQuestion();
+ }
+ window.addEventListener('pointerdown',unlock,true);window.addEventListener('click',unlock,true);
 }
 function notify(s=''){ $('notice').textContent=s; }
 function save(next=db){try{localStorage.setItem(KEY,JSON.stringify(next));db=next;return true;}catch(e){notify('无法保存本地数据（可能空间不足或浏览器禁止存储）。本次操作未提交，请导出备份并检查浏览器设置。');return false;}}
@@ -244,7 +259,7 @@ function resetLearningData(){
  const n=clone();n.words=n.words.map(createWord);n.days={};n.reports=[];n.session=null;n.settings={...n.settings,day:1};
  if(save(n)){clearTimeout(feedbackTimer);notify('学习数据已重置，当前 Day 为 1。词库和其他设置已保留。');show('settings');}
 }
-function renderSettings(){const s=db.settings;$('view').innerHTML=`<div class="eyebrow">PREFERENCES</div><h1>按你的节奏学习。</h1><p class="subtitle">Day 为手动学习日编号；跨午夜不会自动推进。</p><form id="settings" class="card"><h2>训练设置</h2><label>每天新词上限<input id="limit" type="number" min="1" max="10000" step="1" required value="${s.limit}"></label><label>当前 Day<input id="day" type="number" min="1" max="100000" step="1" required value="${s.day}"></label><p class="help">切回已有 Day 会沿用该 Day 的新词计数。到期复习使用真实时间，不受 Day 编号影响。</p><h3 style="margin-top:24px">朗读设置</h3><label><input id="auto-read" type="checkbox" ${s.autoRead!==false?'checked':''}> 自动朗读英文题干及错题反馈</label><label>语速<select id="speech-rate">${[0.75,1,1.25].map(rate=>`<option value="${rate}" ${speechRate()===rate?'selected':''}>${rate}x</option>`).join('')}</select></label><p class="help">当前语音：<span id="current-voice">${esc(voiceDescription())}</span><br>仅使用设备本地语音；无可用语音时静默跳过。</p><button class="primary" type="submit">保存设置</button></form><div class="card" style="margin-top:20px"><h2>词库与数据</h2><p class="muted">已内置 143 个词，无需联网。可选导入含 word,zh,section 三列的 CSV，导入后会覆盖词库及学习记录。建议先导出 JSON 备份。</p><div class="actions"><button id="backup">导出 JSON 备份</button><button id="reimport">导入自定义 CSV</button><button id="reset-learning">重置学习数据</button></div></div><details style="margin-top:24px"><summary>调度规则</summary><p class="help">EF 初始 2.5、最低 1.3。快速答对：reps + 1，基础间隔 1、3、7、16、35 天乘以本次 EF；后续为上一间隔 × EF。3–6 秒答对：本次间隔增量减半，至少 1 天。失败（选错或超过 6 秒）：reps 归零，10 分钟后复习，累计错误 + 1。快速答对后 EF + 0.1，慢答后 EF − 0.14，失败后 EF − 0.2。累计错误 ≥ 2 的词每次 session 强制出现一次。正轮结束后，错词立即回炉，最多两轮；回炉每次作答仍按上述规则调度，且不占用新词名额。</p></details>`;
+function renderSettings(){const s=db.settings;$('view').innerHTML=`<div class="eyebrow">PREFERENCES</div><h1>按你的节奏学习。</h1><p class="subtitle">Day 为手动学习日编号；跨午夜不会自动推进。</p><form id="settings" class="card"><h2>训练设置</h2><label>每天新词上限<input id="limit" type="number" min="1" max="10000" step="1" required value="${s.limit}"></label><label>当前 Day<input id="day" type="number" min="1" max="100000" step="1" required value="${s.day}"></label><p class="help">切回已有 Day 会沿用该 Day 的新词计数。到期复习使用真实时间，不受 Day 编号影响。</p><h3 style="margin-top:24px">朗读设置</h3><label><input id="auto-read" type="checkbox" ${s.autoRead!==false?'checked':''}> 自动朗读英文题干及错题反馈</label><label>语速<select id="speech-rate">${[0.75,1,1.25].map(rate=>`<option value="${rate}" ${speechRate()===rate?'selected':''}>${rate}x</option>`).join('')}</select></label><p class="help">当前语音：<span id="current-voice">${esc(voiceDescription())}</span><br>优先美式英语；使用浏览器提供的语音，朗读不可用时不影响答题。</p><button class="primary" type="submit">保存设置</button></form><div class="card" style="margin-top:20px"><h2>词库与数据</h2><p class="muted">已内置 143 个词，无需联网。可选导入含 word,zh,section 三列的 CSV，导入后会覆盖词库及学习记录。建议先导出 JSON 备份。</p><div class="actions"><button id="backup">导出 JSON 备份</button><button id="reimport">导入自定义 CSV</button><button id="reset-learning">重置学习数据</button></div></div><details style="margin-top:24px"><summary>调度规则</summary><p class="help">EF 初始 2.5、最低 1.3。快速答对：reps + 1，基础间隔 1、3、7、16、35 天乘以本次 EF；后续为上一间隔 × EF。3–6 秒答对：本次间隔增量减半，至少 1 天。失败（选错或超过 6 秒）：reps 归零，10 分钟后复习，累计错误 + 1。快速答对后 EF + 0.1，慢答后 EF − 0.14，失败后 EF − 0.2。累计错误 ≥ 2 的词每次 session 强制出现一次。正轮结束后，错词立即回炉，最多两轮；回炉每次作答仍按上述规则调度，且不占用新词名额。</p></details>`;
  $('settings').onsubmit=e=>{e.preventDefault();const limit=Number($('limit').value),day=Number($('day').value);if(!Number.isInteger(limit)||limit<1||limit>10000||!Number.isInteger(day)||day<1||day>100000){notify('请输入有效的正整数。');return;}const n=clone();n.settings={...n.settings,limit,day,autoRead:$('auto-read').checked,speechRate:Number($('speech-rate').value)};if(save(n)){notify('设置已保存。');show('settings');}};$('reimport').onclick=importCustomCSV;$('backup').onclick=exportBackup;$('reset-learning').onclick=resetLearningData;
 }
 function startSession(){const remaining=Math.max(0,db.settings.limit-dayInfo().newIds.length),reviews=reviewWords(),news=db.words.filter(w=>!w.history.length).slice(0,remaining),n=clone();n.session={id:Date.now(),day:db.settings.day,startedAt:Date.now(),pending:[...reviews.map(w=>({id:w.id,type:'review',forced:w.wrongCount>=2})),...news.map(w=>({id:w.id,type:'new',forced:false}))],answers:[],prev:[],round:0};if(!n.session.pending.length){notify('当前没有待学词。可稍后复习或在设置中调整 Day。');return;}if(save(n)){notify();show('study');}}
