@@ -162,9 +162,9 @@ const KEY='vce-vocab-trainer-v1', DAY=86400000, BASE=[1,3,7,16,35];
 let db=null, screen='home', clock=null, question=null, locked=false, feedbackTimer=null;
 const $=id=>document.getElementById(id), esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const createWord=({word,zh,section})=>({id:JSON.stringify([word,zh,section]),word,zh,section,ef:2.5,interval:0,reps:0,due:0,wrongCount:0,history:[]});
-const fresh=()=>({version:1,settings:{limit:50,day:1,autoRead:true,speechRate:1,speechVoiceId:'',modeWeights:{enZh:60,zhEn:20,spelling:20}},words:[],days:{},session:null,reports:[]});
+const fresh=()=>({version:1,settings:{limit:50,day:1,autoRead:true,speechRate:1,speechVoiceId:'',modeWeights:{enZh:50,zhEn:15,spelling:15,listening:20}},words:[],days:{},session:null,reports:[]});
 // Chrome loads browser-provided voices asynchronously; an empty list must not block speak().
-let speechVoice=null,speechVoices=[],speechUnlocked=false,speechUtterance=null,speechQueue=[],speechDrainTimer=null;
+let speechVoice=null,speechVoices=[],speechUnlocked=false,speechUtterance=null,speechQueue=[],speechDrainTimer=null,speechActiveRequest=null;
 function speechWarning(error){console.warn('朗读暂不可用：',error?.error||error?.message||error);}
 function speechEngine(){try{return typeof window.SpeechSynthesisUtterance==='function'?window.speechSynthesis:null;}catch(error){speechWarning(error);return null;}}
 function speechRate(){return [0.75,1,1.25].includes(db?.settings.speechRate)?db.settings.speechRate:1;}
@@ -186,50 +186,59 @@ function refreshSpeechVoices(preferred=$('speech-voice')?.value??db?.settings.sp
  const label=$('current-voice');if(label)label.textContent=voiceDescription();
 }
 function scheduleSpeechDrain(delay=0){if(speechDrainTimer===null)speechDrainTimer=setTimeout(()=>{speechDrainTimer=null;drainSpeechQueue();},delay);}
+function speechCallback(request,name,value){try{request[name]?.(value);}catch(error){speechWarning(error);}}
 function drainSpeechQueue(){
- if(speechUtterance||!speechQueue.length)return;
- let utterance=null;
+ if(speechUtterance||speechActiveRequest||!speechQueue.length)return;
  try{
-  const engine=speechEngine();if(!engine){speechQueue=[];return;}
-  // Wait for the browser to finish too; never interrupt/cancel a playing utterance.
+  const engine=speechEngine();if(!engine){for(const r of speechQueue.splice(0))speechCallback(r,'onError',{error:'unavailable'});return;}
   if(engine.speaking){scheduleSpeechDrain(100);return;}
   const request=speechQueue.shift();
-  if(request.automatic&&db?.settings.autoRead===false){scheduleSpeechDrain();return;}
+  if((request.guard&&!request.guard())||(request.automatic&&db?.settings.autoRead===false)){scheduleSpeechDrain();return;}
+  speechActiveRequest=request;request.remaining=request.repeat;playSpeechRequest(request);
+ }catch(error){speechWarning(error);scheduleSpeechDrain();}
+}
+function playSpeechRequest(request){
+ if(speechActiveRequest!==request)return;
+ let utterance=null;
+ const fail=error=>{if(speechActiveRequest!==request)return;speechUtterance=null;speechActiveRequest=null;speechCallback(request,'onError',error);if(!['canceled','interrupted','queue-replaced'].includes(error?.error))speechWarning(error);scheduleSpeechDrain();};
+ try{
+  if(request.guard&&!request.guard()){fail({error:'canceled'});return;}
+  const engine=speechEngine();if(!engine){fail({error:'unavailable'});return;}
+  if(engine.speaking){setTimeout(()=>playSpeechRequest(request),100);return;}
   refreshSpeechVoices();if(!speechVoices.length)refreshSpeechVoices();
-  const voice=selectSpeechVoice(request.voiceId);
-  utterance=new SpeechSynthesisUtterance(request.word);
-  if(voice)utterance.voice=voice;
-  utterance.lang=voice?.lang||'en-US';utterance.rate=request.rate;
+  const voice=selectSpeechVoice(request.voiceId);utterance=new SpeechSynthesisUtterance(request.word);
+  if(voice)utterance.voice=voice;utterance.lang=voice?.lang||'en-US';utterance.rate=request.rate;
   let finished=false;
-  const complete=error=>{
-   if(finished)return;finished=true;
-   if(speechUtterance===utterance){speechUtterance=null;
-    if(error&&question?.word.word===request.word)question.autoReadAttempted=false;
-    scheduleSpeechDrain();
-   }
-   if(error&&!['canceled','interrupted'].includes(error.error))speechWarning(error);
+  utterance.onstart=()=>{if(!finished&&speechUtterance===utterance)speechCallback(request,'onStart');};
+  utterance.onend=()=>{
+   if(finished||speechUtterance!==utterance)return;finished=true;speechUtterance=null;
+   speechCallback(request,'onEachEnd');request.remaining--;
+   if(request.remaining>0){setTimeout(()=>playSpeechRequest(request),request.gap);return;}
+   speechActiveRequest=null;speechCallback(request,'onEnd');scheduleSpeechDrain();
   };
-  utterance.onend=()=>complete();utterance.onerror=complete;
+  utterance.onerror=error=>{if(finished||speechUtterance!==utterance)return;finished=true;if(question?.word.word===request.word)question.autoReadAttempted=false;fail(error);};
   speechUtterance=utterance;engine.resume?.();engine.speak(utterance);
- }catch(error){if(speechUtterance===utterance)speechUtterance=null;speechWarning(error);scheduleSpeechDrain();}
+ }catch(error){fail(error);}
 }
 function speakWord(word,automatic=true,options={}){
  if(!speechUnlocked||!word||(automatic&&db?.settings.autoRead===false))return false;
  try{
   if(!speechEngine())return false;
-  const request={word,automatic,voiceId:options.voiceId??db?.settings.speechVoiceId??'',rate:options.rate??speechRate()};
-  // At most two waiting requests; retain the newest requests without cutting off speech.
-  if(speechQueue.length>=2)speechQueue.shift();
+  const request={...options,word,automatic,voiceId:options.voiceId??db?.settings.speechVoiceId??'',rate:options.rate??speechRate(),repeat:options.repeat===2?2:1,gap:options.gap??1000};
+  if(speechQueue.length>=2)speechCallback(speechQueue.shift(),'onError',{error:'queue-replaced'});
   speechQueue.push(request);drainSpeechQueue();return true;
  }catch(error){speechWarning(error);return false;}
 }
 // This shared hook speaks the English prompt independently of the answer UI.
-function autoReadQuestion(){if(question&&!locked&&!question.autoReadAttempted&&db?.settings.autoRead!==false&&speakWord(question.word.word)){question.autoReadAttempted=true;question.autoReadVoice=voiceKey();}}
+function autoReadQuestion(){
+ if(question?.mode==='listening'){if(!locked&&!question.autoReadAttempted&&requestListeningAudio(question))question.autoReadAttempted=true;return;}
+ const q=question;if(q&&!locked&&!q.autoReadAttempted&&db?.settings.autoRead!==false&&speakWord(q.word.word,true,{guard:()=>question===q&&!locked})){q.autoReadAttempted=true;q.autoReadVoice=voiceKey();}
+}
 function setupSpeech(){
  refreshSpeechVoices();
  try{const engine=speechEngine();if(engine)engine.onvoiceschanged=()=>{
   refreshSpeechVoices();
-  if(question&&!locked&&question.autoReadVoice!==voiceKey())question.autoReadAttempted=false;
+  if(question&&!locked&&question.mode!=='listening'&&question.autoReadVoice!==voiceKey())question.autoReadAttempted=false;
   autoReadQuestion();
  };}catch(error){speechWarning(error);}
  function unlock(event){
@@ -237,7 +246,7 @@ function setupSpeech(){
   window.removeEventListener('pointerdown',unlock,true);window.removeEventListener('click',unlock,true);
   speechUnlocked=true;refreshSpeechVoices();
   try{speechEngine()?.resume?.();}catch(error){speechWarning(error);}
-  autoReadQuestion();
+  autoReadQuestion();if(db?.session?.listeningReview)startListeningReview();
  }
  window.addEventListener('pointerdown',unlock,true);window.addEventListener('click',unlock,true);
 }
@@ -262,12 +271,16 @@ function importCustomCSV(){
  input.click();
 }
 function renderImport(){$('view').innerHTML='<div class="eyebrow">GET STARTED</div><h1>你的数学词库已就绪</h1><p class="subtitle">内置 143 个词，无需联网。也可导入包含 word,zh,section 三列的自定义 CSV。</p><div class="actions"><button id="retry" class="primary">使用内置词库</button><button id="custom-csv">导入自定义 CSV</button></div>';$('retry').onclick=()=>initializeBuiltin();$('custom-csv').onclick=importCustomCSV;}
-const MODE_LABELS={enZh:'英→中',zhEn:'中→英',spelling:'拼写'};
-const DEFAULT_MODE_WEIGHTS={enZh:60,zhEn:20,spelling:20};
+const MODE_LABELS={enZh:'英→中',zhEn:'中→英',spelling:'拼写',listening:'听音'};
+const DEFAULT_MODE_WEIGHTS={enZh:50,zhEn:15,spelling:15,listening:20};
 function validModeWeights(w){return w&&Object.keys(MODE_LABELS).every(k=>Number.isInteger(w[k])&&w[k]>=0&&w[k]<=100)&&Object.keys(MODE_LABELS).reduce((sum,k)=>sum+w[k],0)===100;}
-function configuredModeWeights(){return validModeWeights(db.settings.modeWeights)?db.settings.modeWeights:DEFAULT_MODE_WEIGHTS;}
-function effectiveModeWeights(day=db.settings.day){return day<5?{enZh:100,zhEn:0,spelling:0}:configuredModeWeights();}
-function chooseQuestionMode(day){const w=effectiveModeWeights(day),r=Math.random()*100;return r<w.enZh?'enZh':r<w.enZh+w.zhEn?'zhEn':'spelling';}
+function configuredModeWeights(){
+ const w=db.settings.modeWeights;if(validModeWeights(w))return w;
+ if(w&&w.listening===undefined&&['enZh','zhEn','spelling'].every(k=>Number.isInteger(w[k])&&w[k]>=0&&w[k]<=100)&&w.enZh+w.zhEn+w.spelling===100){if(w.enZh===60&&w.zhEn===20&&w.spelling===20)return DEFAULT_MODE_WEIGHTS;return {...w,listening:0};}
+ return DEFAULT_MODE_WEIGHTS;
+}
+function effectiveModeWeights(day=db.settings.day){return day<5?{enZh:100,zhEn:0,spelling:0,listening:0}:configuredModeWeights();}
+function chooseQuestionMode(day){const w=effectiveModeWeights(day),r=Math.random()*100;let total=0;for(const key of Object.keys(MODE_LABELS)){total+=w[key];if(r<total)return key;}return 'listening';}
 function normalizeSpelling(text){return String(text).trim().toLowerCase();}
 function modeStatistics(answers){
  const distribution=Object.entries(MODE_LABELS).map(([mode,label])=>{const a=answers.filter(a=>(a.mode||'enZh')===mode),correct=a.filter(a=>a.correct).length;return {mode,label,count:a.length,correct,accuracy:a.length?correct/a.length*100:0};});
@@ -301,8 +314,8 @@ function resetLearningData(){
  const n=clone();n.words=n.words.map(createWord);n.days={};n.reports=[];n.session=null;n.settings={...n.settings,day:1};
  if(save(n)){clearTimeout(feedbackTimer);notify('学习数据已重置，当前 Day 为 1。词库和其他设置已保留。');show('settings');}
 }
-function renderSettings(){refreshSpeechVoices(db.settings.speechVoiceId||'');const s=db.settings;$('view').innerHTML=`<div class="eyebrow">PREFERENCES</div><h1>按你的节奏学习。</h1><p class="subtitle">Day 为手动学习日编号；跨午夜不会自动推进。</p><form id="settings" class="card"><h2>训练设置</h2><label>每天新词上限<input id="limit" type="number" min="1" max="10000" step="1" required value="${s.limit}"></label><label>当前 Day<input id="day" type="number" min="1" max="100000" step="1" required value="${s.day}"></label><p class="help">切回已有 Day 会沿用该 Day 的新词计数。到期复习使用真实时间，不受 Day 编号影响。</p><h3 style="margin-top:24px">Day ≥5 混合比例</h3><p class="help">Day 1–4 固定英→中 100%；下列比例从 Day 5 起生效，总和须为 100%。每题独立随机，不保证单次 session 恰好达到比例。</p>${Object.entries(MODE_LABELS).map(([key,label])=>`<label>${label}（%）<input id="weight-${key}" type="number" min="0" max="100" step="1" required value="${configuredModeWeights()[key]}"></label>`).join('')}<h3 style="margin-top:24px">朗读设置</h3><label><input id="auto-read" type="checkbox" ${s.autoRead!==false?'checked':''}> 自动朗读英文题干及错题反馈</label><label>语速<select id="speech-rate">${[0.75,1,1.25].map(rate=>`<option value="${rate}" ${speechRate()===rate?'selected':''}>${rate}x</option>`).join('')}</select></label><label>语音选择</label><div class="row" style="justify-content:flex-start;align-items:center"><select id="speech-voice" aria-label="语音选择" style="margin:0;min-width:0">${speechVoiceOptions(s.speechVoiceId||'')}</select><button id="preview-voice" type="button">试听</button></div><p class="help">当前语音：<span id="current-voice">${esc(voiceDescription())}</span><br>优先美式英语；使用浏览器提供的语音，朗读不可用时不影响答题。</p><button class="primary" type="submit">保存设置</button></form><div class="card" style="margin-top:20px"><h2>词库与数据</h2><p class="muted">已内置 143 个词，无需联网。可选导入含 word,zh,section 三列的 CSV，导入后会覆盖词库及学习记录。建议先导出 JSON 备份。</p><div class="actions"><button id="backup">导出 JSON 备份</button><button id="reimport">导入自定义 CSV</button><button id="reset-learning">重置学习数据</button></div></div><details style="margin-top:24px"><summary>调度规则</summary><p class="help">EF 初始 2.5、最低 1.3。快速答对：reps + 1，基础间隔 1、3、7、16、35 天乘以本次 EF；后续为上一间隔 × EF。3–6 秒答对：本次间隔增量减半，至少 1 天。失败（选错或超过 6 秒）：reps 归零，10 分钟后复习，累计错误 + 1。快速答对后 EF + 0.1，慢答后 EF − 0.14，失败后 EF − 0.2。累计错误 ≥ 2 的词每次 session 强制出现一次。正轮结束后，错词立即回炉，最多两轮；回炉每次作答仍按上述规则调度，且不占用新词名额。</p></details>`;
- $('settings').onsubmit=e=>{e.preventDefault();const limit=Number($('limit').value),day=Number($('day').value);if(!Number.isInteger(limit)||limit<1||limit>10000||!Number.isInteger(day)||day<1||day>100000){notify('请输入有效的正整数。');return;}const modeWeights=Object.fromEntries(Object.keys(MODE_LABELS).map(k=>[k,Number($('weight-'+k).value)]));if(!validModeWeights(modeWeights)){notify('三种模式比例须为 0–100 的整数，且总和为 100%。');return;}const n=clone();n.settings={...n.settings,limit,day,modeWeights,autoRead:$('auto-read').checked,speechRate:Number($('speech-rate').value),speechVoiceId:$('speech-voice').value};if(save(n)){notify('设置已保存。');show('settings');}};$('speech-voice').onchange=()=>refreshSpeechVoices($('speech-voice').value);$('preview-voice').onclick=()=>speakWord('This is your vocabulary trainer.',false,{voiceId:$('speech-voice').value,rate:Number($('speech-rate').value)});$('reimport').onclick=importCustomCSV;$('backup').onclick=exportBackup;$('reset-learning').onclick=resetLearningData;
+function renderSettings(){refreshSpeechVoices(db.settings.speechVoiceId||'');const s=db.settings;$('view').innerHTML=`<div class="eyebrow">PREFERENCES</div><h1>按你的节奏学习。</h1><p class="subtitle">Day 为手动学习日编号；跨午夜不会自动推进。</p><form id="settings" class="card"><h2>训练设置</h2><label>每天新词上限<input id="limit" type="number" min="1" max="10000" step="1" required value="${s.limit}"></label><label>当前 Day<input id="day" type="number" min="1" max="100000" step="1" required value="${s.day}"></label><p class="help">切回已有 Day 会沿用该 Day 的新词计数。到期复习使用真实时间，不受 Day 编号影响。</p><h3 style="margin-top:24px">Day ≥5 混合比例</h3><p class="help">Day 1–4 固定英→中 100%；下列比例从 Day 5 起生效，总和须为 100%。每题独立随机，不保证单次 session 恰好达到比例。</p>${Object.entries(MODE_LABELS).map(([key,label])=>`<label>${label}（%）<input id="weight-${key}" type="number" min="0" max="100" step="1" required value="${configuredModeWeights()[key]}"></label>`).join('')}<h3 style="margin-top:24px">朗读设置</h3><label><input id="auto-read" type="checkbox" ${s.autoRead!==false?'checked':''}> 自动朗读英文题干及错题反馈</label><label>语速<select id="speech-rate">${[0.75,1,1.25].map(rate=>`<option value="${rate}" ${speechRate()===rate?'selected':''}>${rate}x</option>`).join('')}</select></label><label>语音选择</label><div class="row" style="justify-content:flex-start;align-items:center"><select id="speech-voice" aria-label="语音选择" style="margin:0;min-width:0">${speechVoiceOptions(s.speechVoiceId||'')}</select><button id="preview-voice" type="button">试听</button></div><p class="help">当前语音：<span id="current-voice">${esc(voiceDescription())}</span><br>优先美式英语；使用浏览器提供的语音。听音题始终播放题音，不受自动朗读开关影响；语音不可用时可不计分跳过。</p><button class="primary" type="submit">保存设置</button></form><div class="card" style="margin-top:20px"><h2>词库与数据</h2><p class="muted">已内置 143 个词，无需联网。可选导入含 word,zh,section 三列的 CSV，导入后会覆盖词库及学习记录。建议先导出 JSON 备份。</p><div class="actions"><button id="backup">导出 JSON 备份</button><button id="reimport">导入自定义 CSV</button><button id="reset-learning">重置学习数据</button></div></div><details style="margin-top:24px"><summary>调度规则</summary><p class="help">EF 初始 2.5、最低 1.3。快速答对：reps + 1，基础间隔 1、3、7、16、35 天乘以本次 EF；后续为上一间隔 × EF。3–6 秒答对：本次间隔增量减半，至少 1 天。失败（选错或超过 6 秒）：reps 归零，10 分钟后复习，累计错误 + 1。快速答对后 EF + 0.1，慢答后 EF − 0.14，失败后 EF − 0.2。累计错误 ≥ 2 的词每次 session 强制出现一次。正轮结束后，错词立即回炉，最多两轮；回炉每次作答仍按上述规则调度，且不占用新词名额。</p></details>`;
+ $('settings').onsubmit=e=>{e.preventDefault();const limit=Number($('limit').value),day=Number($('day').value);if(!Number.isInteger(limit)||limit<1||limit>10000||!Number.isInteger(day)||day<1||day>100000){notify('请输入有效的正整数。');return;}const modeWeights=Object.fromEntries(Object.keys(MODE_LABELS).map(k=>[k,Number($('weight-'+k).value)]));if(!validModeWeights(modeWeights)){notify('四种模式比例须为 0–100 的整数，且总和为 100%。');return;}const n=clone();n.settings={...n.settings,limit,day,modeWeights,autoRead:$('auto-read').checked,speechRate:Number($('speech-rate').value),speechVoiceId:$('speech-voice').value};if(save(n)){notify('设置已保存。');show('settings');}};$('speech-voice').onchange=()=>refreshSpeechVoices($('speech-voice').value);$('preview-voice').onclick=()=>speakWord('This is your vocabulary trainer.',false,{voiceId:$('speech-voice').value,rate:Number($('speech-rate').value)});$('reimport').onclick=importCustomCSV;$('backup').onclick=exportBackup;$('reset-learning').onclick=resetLearningData;
 }
 function startSession(){const remaining=Math.max(0,db.settings.limit-dayInfo().newIds.length),reviews=reviewWords(),news=db.words.filter(w=>!w.history.length).slice(0,remaining),n=clone();n.session={id:Date.now(),day:db.settings.day,startedAt:Date.now(),pending:[...reviews.map(w=>({id:w.id,type:'review',forced:w.wrongCount>=2})),...news.map(w=>({id:w.id,type:'new',forced:false}))],answers:[],prev:[],round:0};if(!n.session.pending.length){notify('当前没有待学词。可稍后复习或在设置中调整 Day。');return;}if(save(n)){notify();show('study');}}
 function relearnStats(answers){
@@ -330,6 +343,44 @@ function endStudy(){
  const n=clone();if(!n.session)return; n.session.pending=[];
  if(save(n)){notify();show('study');}
 }
+let listeningReviewRequest=null;
+function listeningStatus(text){const el=$('listening-status');if(el)el.textContent=text;}
+function requestListeningAudio(q){
+ if(question!==q||locked)return false;
+ const accepted=speakWord(q.word.word,false,{
+  guard:()=>question===q&&!locked,
+  onStart:()=>{if(question!==q||locked)return;if(q.started===null)q.started=performance.now();q.audioFailed=false;document.querySelectorAll('.option').forEach(b=>b.disabled=false);listeningStatus('请根据听到的单词选择中文释义。');$('skip-listening').hidden=true;},
+  onEnd:()=>{if(question===q&&!locked)q.audioComplete=true;},
+  onError:error=>{if(question!==q||locked||error?.error==='queue-replaced')return;q.autoReadAttempted=false;if(!q.audioComplete){q.started=null;q.audioFailed=true;document.querySelectorAll('.option').forEach(b=>b.disabled=true);listeningStatus('朗读未成功，请重试，或跳过本题（不计作答）。');$('skip-listening').hidden=false;}}
+ });
+ if(!accepted){listeningStatus('点击页面后重试朗读；语音不可用时可不计分跳过。');$('skip-listening').hidden=false;}
+ return accepted;
+}
+function finishListeningReview(){
+ const review=db.session?.listeningReview;if(!review||review.remaining>0)return;
+ const wait=review.unlockAt-Date.now();if(wait>0){feedbackTimer=setTimeout(finishListeningReview,wait);return;}
+ const n=clone();n.session.listeningReview=null;if(save(n)){listeningReviewRequest=null;show('study');}
+}
+function startListeningReview(){
+ const r=db.session?.listeningReview;if(!r||listeningReviewRequest===r.token)return;
+ if(r.remaining===1&&r.notBefore>Date.now()){clearTimeout(feedbackTimer);feedbackTimer=setTimeout(startListeningReview,r.notBefore-Date.now());return;}
+ if(r.remaining===0){finishListeningReview();return;}
+ const w=db.words.find(w=>w.id===r.id),token=r.token;listeningReviewRequest=token;
+ const failed=()=>{if(db.session?.listeningReview?.token!==token)return;listeningReviewRequest=null;listeningStatus('重读不可用，可重试或继续学习；本次失败记录与调度已保留。');$('retry-listening-review').hidden=false;$('continue-listening-review').hidden=false;};
+ const accepted=speakWord(w.word,false,{repeat:r.remaining===2?2:1,gap:1000,guard:()=>db.session?.listeningReview?.token===token,
+  onStart:()=>listeningStatus('正在重读，请听完两遍后继续。'),
+  onEachEnd:()=>{if(db.session?.listeningReview?.token!==token)return;const n=clone();n.session.listeningReview.remaining--;n.session.listeningReview.notBefore=Date.now()+1000;if(save(n))listeningStatus('剩余重读 '+n.session.listeningReview.remaining+' 遍。');},
+  onEnd:()=>{listeningReviewRequest=null;finishListeningReview();},onError:failed
+ });
+ if(!accepted)failed();
+}
+function renderListeningReview(){
+ const r=db.session.listeningReview,w=db.words.find(w=>w.id===r.id);locked=true;question=null;
+ $('view').innerHTML=`<div class="eyebrow">听音订正</div><h1>再听两遍，记住这个词。</h1><div class="card"><h2 lang="en">${esc(w.word)}</h2><p>${esc(w.zh)}</p><p id="listening-status" role="status">等待重读，两遍间隔 1 秒，完成后自动继续。</p><div class="actions"><button id="retry-listening-review" hidden>重试朗读</button><button id="continue-listening-review" hidden>继续学习（重读不可用）</button></div></div>`;
+ $('retry-listening-review').onclick=()=>{ $('retry-listening-review').hidden=true;$('continue-listening-review').hidden=true;startListeningReview();};
+ $('continue-listening-review').onclick=()=>{const n=clone();n.session.listeningReview=null;if(save(n)){listeningReviewRequest=null;show('study');}};
+ if(r.remaining===1&&r.notBefore>Date.now()){feedbackTimer=setTimeout(startListeningReview,r.notBefore-Date.now());}else startListeningReview();
+}
 function renderCorrection(){
  const c=db.session.correction,w=db.words.find(w=>w.id===c.id);clearInterval(clock);clearTimeout(feedbackTimer);locked=true;question=null;
  $('view').innerHTML=`<div class="eyebrow">SPELLING CORRECTION</div><h1>再写一遍，记住这个词。</h1><div class="card"><span class="pill">${esc(w.section)}</span><p>${esc(w.zh)}</p><h2 lang="en">${esc(w.word)}</h2><p class="red">拼写不正确。请抄写上面的正确拼写才能继续。</p><p class="help">本题 ${c.seconds.toFixed(2)} 秒 · 10 分钟后复习。订正不会增加答题次数或改变本次调度。</p><button id="replay-word" type="button" class="small">🔊 再听一遍</button><form id="correction-form"><label>抄写正确拼写<input id="copy-spelling" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" required></label><button id="confirm-copy" class="primary" disabled>确认订正并继续 →</button><p id="copy-hint" class="help" aria-live="polite">请查看正确答案，2 秒后可确认。</p></form></div>`;
@@ -340,34 +391,39 @@ function renderCorrection(){
  $('copy-spelling').focus();speakWord(w.word);
 }
 function renderQuestion(){
- let s=db.session;if(!s)return show('home');if(s.correction)return renderCorrection();if(!s.pending.length)return advanceSession();
+ let s=db.session;if(!s)return show('home');if(s.listeningReview)return renderListeningReview();if(s.correction)return renderCorrection();if(!s.pending.length)return advanceSession();
  if(!Object.hasOwn(MODE_LABELS,s.pending[0].mode)){const n=clone();n.session.pending[0].mode=chooseQuestionMode(s.day);if(!save(n))return;s=db.session;}
  const item=s.pending[0],mode=item.mode,w=db.words.find(w=>w.id===item.id),options=mode==='spelling'?[]:makeOptions(w,s.prev);
  if(!options){$('view').innerHTML=`<h1>本题暂无可用干扰项</h1><p class="subtitle">${esc(w.word)} 所在 section 无法同时满足不同释义、不与上一题选项重复、英文不互为子串的规则。请结束 session 并检查词库。</p><button id="finish" class="primary">结束并查看日报</button>`;$('finish').onclick=finishSession;return;}
- const count=s.answers.filter(a=>(a.round||0)===(s.round||0)).length,total=count+s.pending.length;question={word:w,item,mode,options,started:performance.now()};locked=false;
- const instruction=mode==='enZh'?'选择正确的中文释义':mode==='zhEn'?'选择正确的英文单词':'请输入对应的英文单词（忽略大小写和首尾空格）';
- $('view').innerHTML=`<div class="row"><div><div class="eyebrow">FOCUS SESSION · ${MODE_LABELS[mode]}</div><h2 style="margin:8px 0">${(s.round||0)>0?'回炉重考 · 第 '+s.round+' / 2 轮':item.forced?'高危词强化':item.type==='review'?'到期复习':'学习新词'}</h2></div><button id="finish" class="small quiet">${(s.round||0)>0?'结束回炉':'结束正轮'}</button></div><div class="row tiny muted" style="margin:16px 0 8px"><span>已完成 ${count} / ${total}</span><span>${(s.round||0)>0?'答对且不超时 → 已回炉':'先复习 · 后新词'}</span></div><div class="progress" role="progressbar" aria-label="训练进度" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${count}"><span style="width:${count/total*100}%"></span></div><div class="card question"><div class="row"><span class="pill">${esc(w.section)}</span><span id="timer" class="timer green" aria-label="答题计时">0.0 s</span></div><div class="word" lang="${mode==='enZh'?'en':'zh-CN'}">${esc(mode==='enZh'?w.word:w.zh)}</div><span class="tiny muted">${instruction}</span><div class="actions" style="justify-content:center;margin-top:16px"><button id="replay-word" class="small" type="button">🔊 再听一遍</button></div></div>${mode==='spelling'?'<form id="spelling-form" class="card" style="margin-top:20px"><label>英文拼写<input id="spelling-answer" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" required></label><button id="submit-spelling" class="primary">提交答案</button></form>':`<div class="options">${options.map((o,i)=>`<button class="option" data-index="${i}"><span class="key">${i+1}</span><span>${esc(mode==='enZh'?o.zh:o.word)}</span></button>`).join('')}</div>`}<div id="feedback" aria-live="polite"></div><div class="actions"><button id="next" class="primary" hidden>下一题 →</button></div><p class="tiny muted">绿色 &lt;3s · 黄色 3–6s · 选错或 &gt;6s 按失败调度</p>`;
+ const count=s.answers.filter(a=>(a.round||0)===(s.round||0)).length,total=count+s.pending.length;question={word:w,item,mode,options,started:mode==='listening'?null:performance.now()};locked=false;
+ const instruction=mode==='enZh'?'选择正确的中文释义':mode==='zhEn'?'选择正确的英文单词':mode==='listening'?'听单词，选择正确的中文释义':'请输入对应的英文单词（忽略大小写和首尾空格）';
+ $('view').innerHTML=`<div class="row"><div><div class="eyebrow">FOCUS SESSION · ${MODE_LABELS[mode]}</div><h2 style="margin:8px 0">${(s.round||0)>0?'回炉重考 · 第 '+s.round+' / 2 轮':item.forced?'高危词强化':item.type==='review'?'到期复习':'学习新词'}</h2></div><button id="finish" class="small quiet">${(s.round||0)>0?'结束回炉':'结束正轮'}</button></div><div class="row tiny muted" style="margin:16px 0 8px"><span>已完成 ${count} / ${total}</span><span>${(s.round||0)>0?'答对且不超时 → 已回炉':'先复习 · 后新词'}</span></div><div class="progress" role="progressbar" aria-label="训练进度" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${count}"><span style="width:${count/total*100}%"></span></div><div class="card question"><div class="row"><span class="pill">${mode==='listening'?'听音':esc(w.section)}</span><span id="timer" class="timer green" aria-label="答题计时">0.0 s</span></div><div class="word" lang="${mode==='enZh'?'en':'zh-CN'}">${mode==='listening'?'🔊':esc(mode==='enZh'?w.word:w.zh)}</div><span class="tiny muted">${instruction}</span><div class="actions" style="justify-content:center;margin-top:16px"><button id="replay-word" class="small" type="button">🔊 再听一遍</button></div></div>${mode==='spelling'?'<form id="spelling-form" class="card" style="margin-top:20px"><label>英文拼写<input id="spelling-answer" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" required></label><button id="submit-spelling" class="primary">提交答案</button></form>':`<div class="options">${options.map((o,i)=>`<button class="option" data-index="${i}"><span class="key">${i+1}</span><span>${esc(mode==='zhEn'?o.word:o.zh)}</span></button>`).join('')}</div>`}<p id="listening-status" role="status" ${mode!=='listening'?'hidden':''}>${mode==='listening'?'等待语音开始播放后计时…':''}</p><button id="skip-listening" class="small" hidden>跳过此题（不计作答）</button><div id="feedback" aria-live="polite"></div><div class="actions"><button id="next" class="primary" hidden>下一题 →</button></div><p class="tiny muted">绿色 &lt;3s · 黄色 3–6s · 选错或 &gt;6s 按失败调度</p>`;
  $('finish').onclick=()=>{if(locked&&question?.failed&&performance.now()<question.unlockAt){notify('请先查看正确答案，2 秒后可结束。');return;}endStudy();};
  document.querySelectorAll('.option').forEach(b=>b.onclick=()=>answer(Number(b.dataset.index)));
  if(mode==='spelling'){$('spelling-form').onsubmit=e=>{e.preventDefault();answer($('spelling-answer').value);};$('spelling-answer').focus();}
- $('next').onclick=()=>{notify();show('study');};clock=setInterval(()=>{if(!question||locked)return;const t=(performance.now()-question.started)/1000,el=$('timer');if(el){el.textContent=t.toFixed(1)+' s';el.className='timer '+(t<3?'green':t<=6?'yellow':'red');}},80);
- question.started=performance.now();$('replay-word').onclick=()=>speakWord(w.word,false);autoReadQuestion();
+ $('next').onclick=()=>{notify();show('study');};clock=setInterval(()=>{if(!question||locked)return;if(question.started===null){$('timer').textContent='等待播放';return;}const t=(performance.now()-question.started)/1000,el=$('timer');if(el){el.textContent=t.toFixed(1)+' s';el.className='timer '+(t<3?'green':t<=6?'yellow':'red');}},80);
+ if(mode!=='listening')question.started=performance.now();else{document.querySelectorAll('.option').forEach(b=>b.disabled=true);$('skip-listening').hidden=false;}
+ const q=question;$('replay-word').onclick=()=>mode==='listening'?requestListeningAudio(q):speakWord(w.word,false,{guard:()=>question===q});
+ $('skip-listening').onclick=()=>{const n=clone();n.session.pending.shift();if(save(n)){notify('语音题已跳过，未计入作答或新词配额。');show('study');}};autoReadQuestion();
 }
 function schedule(w,correct,seconds,now){const fast=correct&&seconds<3,success=correct&&seconds<=6;let interval=w.interval;if(success){const reps=w.reps+1;const target=reps<=5?BASE[reps-1]*w.ef:Math.max(1,w.interval*w.ef);interval=fast?target:Math.max(1,w.interval+Math.max(0,target-w.interval)/2);w.reps=reps;w.interval=interval;w.due=now+interval*DAY;w.ef=Math.max(1.3,Number((w.ef+(fast?.1:-.14)).toFixed(2)));}else{w.reps=0;w.interval=0;w.due=now+600000;w.wrongCount++;w.ef=Math.max(1.3,Number((w.ef-.2).toFixed(2)));}return {fast,success};}
 function answer(value){
- if(!question||locked)return;const q=question,mode=q.mode||'enZh';let chosen,correct;
+ if(!question||locked)return;const q=question,mode=q.mode||'enZh';if(mode==='listening'&&(q.started===null||q.audioFailed))return;let chosen,correct;
  if(mode==='spelling'){if(typeof value!=='string'||!normalizeSpelling(value))return;chosen=value;correct=normalizeSpelling(value)===normalizeSpelling(q.word.word);}
- else{if(!Number.isInteger(value)||!q.options[value])return;chosen=mode==='enZh'?q.options[value].zh:q.options[value].word;correct=q.options[value].id===q.word.id;}
+ else{if(!Number.isInteger(value)||!q.options[value])return;chosen=mode==='zhEn'?q.options[value].word:q.options[value].zh;correct=q.options[value].id===q.word.id;}
  const seconds=(performance.now()-q.started)/1000,now=Date.now(),n=clone(),w=n.words.find(w=>w.id===q.word.id),result=schedule(w,correct,seconds,now),record={id:w.id,word:w.word,zh:w.zh,section:w.section,type:q.item.type,mode,round:n.session.round||0,correct,success:result.success,fast:result.fast,seconds,at:now,day:n.session.day,chosen};
  w.history.push(record);n.session.answers.push(record);n.session.pending.shift();n.session.prev=q.options.map(o=>({id:o.id,zh:o.zh}));
  if(q.item.type==='new'){const d=n.days[n.session.day]||(n.days[n.session.day]={newIds:[]});if(!d.newIds.includes(w.id))d.newIds.push(w.id);}
+ if(mode==='listening'&&!result.success)n.session.listeningReview={id:w.id,token:String(now)+'-'+n.session.answers.length,remaining:2,notBefore:0,unlockAt:now+2000};
  if(mode==='spelling'&&!correct)n.session.correction={id:w.id,unlockAt:now+2000,seconds};
  if(!save(n))return;locked=true;clearInterval(clock);q.failed=!result.success;q.unlockAt=performance.now()+(q.failed?2000:0);
+ if(n.session.listeningReview)return renderListeningReview();
  if(n.session.correction)return renderCorrection();
  document.querySelectorAll('.option').forEach((b,i)=>{b.disabled=true;if(q.options[i].id===q.word.id)b.classList.add('correct');else if(i===value)b.classList.add('incorrect');});
  if(mode==='spelling'){$('spelling-answer').disabled=true;$('submit-spelling').disabled=true;}
+ if(mode==='listening'){$('view').querySelector('.word').textContent=w.word;$('view').querySelector('.word').lang='en';}
  const color=result.fast?'green':result.success?'yellow':'red';$('timer').className='timer '+color;$('timer').textContent=seconds.toFixed(2)+' s';const msg=result.fast?'答对了，记忆很敏捷。':result.success?'答对了，再熟悉一点就更好了。':correct?'答对了，但超过 6 秒，按失败复习。':'这次记住，下次就会。';
- $('feedback').className='feedback '+color;$('feedback').innerHTML=`<strong>${msg}</strong><br>正确答案：${esc(mode==='enZh'?w.zh:w.word)} · ${result.success?`${Number(w.interval.toFixed(2))} 天后复习`:'10 分钟后复习'}${result.success&&(n.session.round||0)>0?'<br><strong>已回炉 · 本次 session 不再出现</strong>':''}${q.failed?'<br><span id="wait" class="tiny">请查看正确答案，2 秒后可继续。</span>':''}`;
+ $('feedback').className='feedback '+color;$('feedback').innerHTML=`<strong>${msg}</strong><br>正确答案：${esc(mode==='listening'?w.word+' · '+w.zh:mode==='enZh'?w.zh:w.word)} · ${result.success?`${Number(w.interval.toFixed(2))} 天后复习`:'10 分钟后复习'}${result.success&&(n.session.round||0)>0?'<br><strong>已回炉 · 本次 session 不再出现</strong>':''}${q.failed?'<br><span id="wait" class="tiny">请查看正确答案，2 秒后可继续。</span>':''}`;
  $('next').hidden=false;$('next').textContent=n.session.pending.length?'下一题 →':(n.session.round||0)<2&&relearnCandidates(n.session).length?'进入回炉重考 →':'完成，查看日报 →';$('next').disabled=q.failed;$('finish').disabled=q.failed;
  if(q.failed){feedbackTimer=setTimeout(()=>{if(screen==='study'&&locked){$('next').disabled=false;$('finish').disabled=false;$('wait').textContent='可以继续了。';}},2000);speakWord(w.word);}
 }
@@ -391,12 +447,13 @@ function migrateRetiredWords(d){
   d.session.answers=d.session.answers.filter(x=>!RETIRED_WORD_IDS.has(x.id));
   d.session.prev=d.session.prev.filter(x=>!RETIRED_WORD_IDS.has(x.id));
   if(RETIRED_WORD_IDS.has(d.session.correction?.id))d.session.correction=null;
+  if(RETIRED_WORD_IDS.has(d.session.listeningReview?.id))d.session.listeningReview=null;
  }
  // Completed reports are historical snapshots; they do not feed future question queues.
  return true;
 }
-function validateStored(d){if(d?.version!==1||!Array.isArray(d.words)||!d.words.length||!d.settings||!Number.isInteger(d.settings.limit)||d.settings.limit<1||!Number.isInteger(d.settings.day)||d.settings.day<1||!d.days||!Array.isArray(d.reports))throw Error('本地数据结构不完整');const ids=new Set();for(const w of d.words){if(typeof w.id!=='string'||ids.has(w.id)||!['word','zh','section'].every(k=>typeof w[k]==='string'&&w[k].trim())||!Array.isArray(w.history)||!['ef','interval','reps','due','wrongCount'].every(k=>Number.isFinite(w[k])&&w[k]>=0))throw Error('本地词库损坏');ids.add(w.id);}if(d.session&&((d.session.round!==undefined&&(!Number.isInteger(d.session.round)||d.session.round<0||d.session.round>2))||!Array.isArray(d.session.pending)||!Array.isArray(d.session.answers)||!Array.isArray(d.session.prev)||d.session.pending.some(x=>!ids.has(x.id))||(d.session.correction&&(!ids.has(d.session.correction.id)||!Number.isFinite(d.session.correction.unlockAt)||!Number.isFinite(d.session.correction.seconds)))))throw Error('本地 session 损坏');return d;}
-async function init(){setupSpeech();for(const name of ['home','report','settings'])$('nav-'+name).onclick=()=>show(name);let raw;try{raw=localStorage.getItem(KEY);}catch{notify('浏览器禁止访问 localStorage，请允许本地存储后重试。');renderImport();return;}if(raw){try{db=validateStored(JSON.parse(raw));db.settings={autoRead:true,speechRate:1,speechVoiceId:'',...db.settings};if(migrateRetiredWords(db))save();show(db.session?'study':'home');}catch(e){notify(e.message+'。未自动覆盖原始数据；请先下载保留，再重新导入。');$('view').innerHTML='<h1>本地数据无法读取</h1><button id="raw">下载原始数据</button> <button id="reset">恢复内置词库</button> <button id="custom-csv">导入自定义 CSV</button>';$('raw').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([raw],{type:'application/json'}));a.download='vocab-trainer-recovery.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);};$('reset').onclick=()=>initializeBuiltin(true);$('custom-csv').onclick=importCustomCSV;}}else initializeBuiltin();}
+function validateStored(d){if(d?.version!==1||!Array.isArray(d.words)||!d.words.length||!d.settings||!Number.isInteger(d.settings.limit)||d.settings.limit<1||!Number.isInteger(d.settings.day)||d.settings.day<1||!d.days||!Array.isArray(d.reports))throw Error('本地数据结构不完整');const ids=new Set();for(const w of d.words){if(typeof w.id!=='string'||ids.has(w.id)||!['word','zh','section'].every(k=>typeof w[k]==='string'&&w[k].trim())||!Array.isArray(w.history)||!['ef','interval','reps','due','wrongCount'].every(k=>Number.isFinite(w[k])&&w[k]>=0))throw Error('本地词库损坏');ids.add(w.id);}if(d.session&&((d.session.round!==undefined&&(!Number.isInteger(d.session.round)||d.session.round<0||d.session.round>2))||!Array.isArray(d.session.pending)||!Array.isArray(d.session.answers)||!Array.isArray(d.session.prev)||d.session.pending.some(x=>!ids.has(x.id))||(d.session.correction&&(!ids.has(d.session.correction.id)||!Number.isFinite(d.session.correction.unlockAt)||!Number.isFinite(d.session.correction.seconds)))||(d.session.listeningReview&&(!ids.has(d.session.listeningReview.id)||![0,1,2].includes(d.session.listeningReview.remaining)||!Number.isFinite(d.session.listeningReview.unlockAt)||!Number.isFinite(d.session.listeningReview.notBefore)||typeof d.session.listeningReview.token!=='string'))))throw Error('本地 session 损坏');return d;}
+async function init(){setupSpeech();for(const name of ['home','report','settings'])$('nav-'+name).onclick=()=>show(name);let raw;try{raw=localStorage.getItem(KEY);}catch{notify('浏览器禁止访问 localStorage，请允许本地存储后重试。');renderImport();return;}if(raw){try{db=validateStored(JSON.parse(raw));db.settings={autoRead:true,speechRate:1,speechVoiceId:'',...db.settings};db.settings.modeWeights={...configuredModeWeights()};if(migrateRetiredWords(db))save();show(db.session?'study':'home');}catch(e){notify(e.message+'。未自动覆盖原始数据；请先下载保留，再重新导入。');$('view').innerHTML='<h1>本地数据无法读取</h1><button id="raw">下载原始数据</button> <button id="reset">恢复内置词库</button> <button id="custom-csv">导入自定义 CSV</button>';$('raw').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([raw],{type:'application/json'}));a.download='vocab-trainer-recovery.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);};$('reset').onclick=()=>initializeBuiltin(true);$('custom-csv').onclick=importCustomCSV;}}else initializeBuiltin();}
 document.addEventListener('keydown',e=>{if(screen!=='study'||e.repeat||e.ctrlKey||e.metaKey||e.altKey||e.isComposing||e.target.matches('input,textarea,select'))return;if(['1','2','3'].includes(e.key)){e.preventDefault();answer(Number(e.key)-1);}else if(e.key==='Enter'&&locked&&$('next')&&!$('next').disabled){e.preventDefault();$('next').click();}});
 init();
 </script>
