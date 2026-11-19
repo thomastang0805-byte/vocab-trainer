@@ -157,7 +157,64 @@ const BUILTIN_VOCAB = [
   {"word": "it follows that", "zh": "由此可得", "section": "cmd"},
   {"word": "let ... be", "zh": "设……为", "section": "cmd"},
   {"word": "show all working", "zh": "写出全部过程", "section": "cmd"},
-  {"word": "otherwise", "zh": "否则", "section": "cmd"}
+  {"word": "otherwise", "zh": "否则", "section": "cmd"},
+  {"word": "probability", "zh": "概率", "section": "prob"},
+  {"word": "sample space", "zh": "样本空间", "section": "prob"},
+  {"word": "outcome", "zh": "结果", "section": "prob"},
+  {"word": "event", "zh": "事件", "section": "prob"},
+  {"word": "mutually exclusive", "zh": "互斥", "section": "prob"},
+  {"word": "independent", "zh": "独立", "section": "prob"},
+  {"word": "conditional probability", "zh": "条件概率", "section": "prob"},
+  {"word": "tree diagram", "zh": "树状图", "section": "prob"},
+  {"word": "Venn diagram", "zh": "维恩图", "section": "prob"},
+  {"word": "union", "zh": "并集", "section": "prob"},
+  {"word": "intersection", "zh": "交集", "section": "prob"},
+  {"word": "complement", "zh": "补集", "section": "prob"},
+  {"word": "permutation", "zh": "排列", "section": "prob"},
+  {"word": "combination", "zh": "组合", "section": "prob"},
+  {"word": "factorial", "zh": "阶乘", "section": "prob"},
+  {"word": "with replacement", "zh": "有放回", "section": "prob"},
+  {"word": "without replacement", "zh": "无放回", "section": "prob"},
+  {"word": "expected value", "zh": "期望值", "section": "prob"},
+  {"word": "fair", "zh": "公平的", "section": "prob"},
+  {"word": "biased", "zh": "有偏的", "section": "prob"},
+  {"word": "trial", "zh": "试验", "section": "prob"},
+  {"word": "random variable", "zh": "随机变量", "section": "prob"},
+  {"word": "discrete", "zh": "离散的", "section": "prob"},
+  {"word": "binomial distribution", "zh": "二项分布", "section": "prob"},
+  {"word": "Bernoulli trial", "zh": "伯努利试验", "section": "prob"},
+  {"word": "mean", "zh": "均值", "section": "prob"},
+  {"word": "variance", "zh": "方差", "section": "prob"},
+  {"word": "standard deviation", "zh": "标准差", "section": "prob"},
+  {"word": "relative frequency", "zh": "相对频率", "section": "prob"},
+  {"word": "simulation", "zh": "模拟", "section": "prob"},
+  {"word": "codomain", "zh": "陪域", "section": "u3f"},
+  {"word": "one-to-one", "zh": "一对一", "section": "u3f"},
+  {"word": "many-to-one", "zh": "多对一", "section": "u3f"},
+  {"word": "inverse function", "zh": "反函数", "section": "u3f"},
+  {"word": "composite function", "zh": "复合函数", "section": "u3f"},
+  {"word": "piecewise function", "zh": "分段函数", "section": "u3f"},
+  {"word": "hybrid function", "zh": "混合函数", "section": "u3f"},
+  {"word": "asymptote", "zh": "渐近线", "section": "u3f"},
+  {"word": "horizontal asymptote", "zh": "水平渐近线", "section": "u3f"},
+  {"word": "vertical asymptote", "zh": "垂直渐近线", "section": "u3f"},
+  {"word": "rational function", "zh": "有理函数", "section": "u3f"},
+  {"word": "truncation", "zh": "截断", "section": "u3f"},
+  {"word": "truncus", "zh": "截断函数", "section": "u3f"},
+  {"word": "hyperbola", "zh": "双曲线", "section": "u3f"},
+  {"word": "rectangular hyperbola", "zh": "矩形双曲线", "section": "u3f"},
+  {"word": "semicircle", "zh": "半圆", "section": "u3f"},
+  {"word": "maximal domain", "zh": "最大定义域", "section": "u3f"},
+  {"word": "implied domain", "zh": "隐含定义域", "section": "u3f"},
+  {"word": "restriction", "zh": "限制", "section": "u3f"},
+  {"word": "modulus", "zh": "模", "section": "u3f"},
+  {"word": "absolute value", "zh": "绝对值", "section": "u3f"},
+  {"word": "mapping", "zh": "映射", "section": "u3f"},
+  {"word": "self-inverse", "zh": "自反函数", "section": "u3f"},
+  {"word": "period", "zh": "周期", "section": "u3f"},
+  {"word": "amplitude", "zh": "振幅", "section": "u3f"},
+  {"word": "sinusoidal", "zh": "正弦的", "section": "u3f"},
+  {"word": "parabola", "zh": "抛物线", "section": "u3f"}
 ];
 const SENTENCES = [
   {
@@ -514,7 +571,27 @@ const SENTENCES = [
     "en": "Hence, or otherwise, find all values of k that satisfy the equation.",
     "zh": "由此或其他方法，求满足方程的k的所有取值。",
     "sec": "18H"
-  }
+  },
+  {"en":"Find the probability that both events occur.","zh":"求两个事件同时发生的概率。","sec":"prob"},
+  {"en":"Show that the events are independent.","zh":"证明事件互相独立。","sec":"prob"},
+  {"en":"Find the probability of A given B.","zh":"求在B发生的条件下A的概率。","sec":"prob"},
+  {"en":"A fair die is rolled. Find the probability of rolling a prime number.","zh":"掷一个公平骰子，求掷出质数的概率。","sec":"prob"},
+  {"en":"Two cards are drawn without replacement. Find the probability that both are red.","zh":"不放回地抽两张牌，求两张都是红色的概率。","sec":"prob"},
+  {"en":"Find the number of permutations of n objects taken r at a time.","zh":"求从n个物体中取r个的排列数。","sec":"prob"},
+  {"en":"A random variable X has a binomial distribution with parameters n and p.","zh":"随机变量X服从参数为n和p的二项分布。","sec":"prob"},
+  {"en":"Find the expected value and standard deviation of the distribution.","zh":"求分布的期望值和标准差。","sec":"prob"},
+  {"en":"Find the probability using a tree diagram.","zh":"用树状图求概率。","sec":"prob"},
+  {"en":"Find the number of elements in the intersection of A and B.","zh":"求A与B交集中的元素个数。","sec":"prob"},
+  {"en":"State the domain and range of the function.","zh":"写出函数的定义域和值域。","sec":"u3f"},
+  {"en":"Find the inverse function f⁻¹(x).","zh":"求反函数f⁻¹(x)。","sec":"u3f"},
+  {"en":"Show that f and g are inverse functions.","zh":"证明f和g互为反函数。","sec":"u3f"},
+  {"en":"Find the rule for the composite function f(g(x)).","zh":"求复合函数f(g(x))的表达式。","sec":"u3f"},
+  {"en":"Sketch the graph of the function, labelling all asymptotes.","zh":"画函数草图，标注所有渐近线。","sec":"u3f"},
+  {"en":"State the equations of the asymptotes.","zh":"写出渐近线方程。","sec":"u3f"},
+  {"en":"Find the maximal domain of the function.","zh":"求函数的最大定义域。","sec":"u3f"},
+  {"en":"Describe the transformation that maps the graph of f onto the graph of g.","zh":"描述把f的图像变换为g的图像的变换。","sec":"u3f"},
+  {"en":"Find the coordinates of the image of the given point under the transformation.","zh":"求给定点在变换下的像的坐标。","sec":"u3f"},
+  {"en":"State whether the function is one-to-one or many-to-one.","zh":"判断函数是一对一还是多对一。","sec":"u3f"}
 ];
 const SENTENCE_KEY='vce-sentence-trainer-v1';
 let sdb=null,sentenceLoadError='',sentenceQuestion=null,sentenceLocked=false,sentenceClock=null,sentenceFeedbackTimer=null,reportTab='word';
@@ -737,7 +814,7 @@ function resetLearningData(){
  const n=clone();n.words=n.words.map(createWord);n.days={};n.reports=[];n.stageHistory=[];n.stageDays={};n.session=null;n.settings={...n.settings,day:1};
  if(save(n)){clearTimeout(feedbackTimer);notify('学习数据已重置，当前 Day 为 1。词库和其他设置已保留。');show('settings');}
 }
-function renderSettings(){refreshSpeechVoices(db.settings.speechVoiceId||'');const s=db.settings;$('view').innerHTML=`<div class="eyebrow">PREFERENCES</div><h1>按你的节奏学习。</h1><p class="subtitle">Day 为手动学习日编号；跨午夜不会自动推进。</p><form id="settings" class="card"><h2>训练设置</h2><label>每天新词上限<input id="limit" type="number" min="1" max="10000" step="1" required value="${s.limit}"></label><label>当前 Day<input id="day" type="number" min="1" max="100000" step="1" required value="${s.day}"></label><p class="help">切回已有 Day 会沿用该 Day 的新词计数。到期复习使用真实时间，不受 Day 编号影响。</p><label>阶段测日<input id="stage-exam-days" type="text" value="${esc(configuredStageDays().join(', '))}" placeholder="5, 8"></label><p class="help">用逗号分隔 Day 编号，留空可关闭。按浏览器本地日期判断是否已测或已跳过；阶段测从截至当前 Day 累计新学词中随机抽取，最多 30 词；独立计分，不影响学习调度。</p><h3 style="margin-top:24px">Day ≥5 混合比例</h3><p class="help">Day 1–4 固定英→中 100%；下列比例从 Day 5 起生效，总和须为 100%。每题独立随机，不保证单次 session 恰好达到比例。</p>${Object.entries(MODE_LABELS).map(([key,label])=>`<label>${label}（%）<input id="weight-${key}" type="number" min="0" max="100" step="1" required value="${configuredModeWeights()[key]}"></label>`).join('')}<h3 style="margin-top:24px">朗读设置</h3><label><input id="auto-read" type="checkbox" ${s.autoRead!==false?'checked':''}> 自动朗读英文题干及错题反馈</label><label>语速<select id="speech-rate">${[0.75,1,1.25].map(rate=>`<option value="${rate}" ${speechRate()===rate?'selected':''}>${rate}x</option>`).join('')}</select></label><label>语音选择</label><div class="row" style="justify-content:flex-start;align-items:center"><select id="speech-voice" aria-label="语音选择" style="margin:0;min-width:0">${speechVoiceOptions(s.speechVoiceId||'')}</select><button id="preview-voice" type="button">试听</button></div><p class="help">当前语音：<span id="current-voice">${esc(voiceDescription())}</span><br>优先美式英语；使用浏览器提供的语音。听音题始终播放题音，不受自动朗读开关影响；语音不可用时可不计分跳过。</p><button class="primary" type="submit">保存设置</button></form><div class="card" style="margin-top:20px"><h2>词库与数据</h2><p class="muted">已内置 143 个词，无需联网。可选导入含 word,zh,section 三列的 CSV，导入后会覆盖词库及学习记录。建议先导出 JSON 备份。</p><div class="actions"><button id="backup">导出 JSON 备份</button><button id="reimport">导入自定义 CSV</button><button id="reset-learning">重置学习数据</button></div></div>${renderSentenceSettings()}${renderStageHistory()}<details style="margin-top:24px"><summary>调度规则</summary><p class="help">EF 初始 2.5、最低 1.3。快速答对：reps + 1，基础间隔 1、3、7、16、35 天乘以本次 EF；后续为上一间隔 × EF。3–6 秒答对：本次间隔增量减半，至少 1 天。失败（选错或超过 6 秒）：reps 归零，10 分钟后复习，累计错误 + 1。快速答对后 EF + 0.1，慢答后 EF − 0.14，失败后 EF − 0.2。累计错误 ≥ 2 的词每次 session 强制出现一次。正轮结束后，错词立即回炉，最多两轮；回炉每次作答仍按上述规则调度，且不占用新词名额。</p></details>`;
+function renderSettings(){refreshSpeechVoices(db.settings.speechVoiceId||'');const s=db.settings;$('view').innerHTML=`<div class="eyebrow">PREFERENCES</div><h1>按你的节奏学习。</h1><p class="subtitle">Day 为手动学习日编号；跨午夜不会自动推进。</p><form id="settings" class="card"><h2>训练设置</h2><label>每天新词上限<input id="limit" type="number" min="1" max="10000" step="1" required value="${s.limit}"></label><label>当前 Day<input id="day" type="number" min="1" max="100000" step="1" required value="${s.day}"></label><p class="help">切回已有 Day 会沿用该 Day 的新词计数。到期复习使用真实时间，不受 Day 编号影响。</p><label>阶段测日<input id="stage-exam-days" type="text" value="${esc(configuredStageDays().join(', '))}" placeholder="5, 8"></label><p class="help">用逗号分隔 Day 编号，留空可关闭。按浏览器本地日期判断是否已测或已跳过；阶段测从截至当前 Day 累计新学词中随机抽取，最多 30 词；独立计分，不影响学习调度。</p><h3 style="margin-top:24px">Day ≥5 混合比例</h3><p class="help">Day 1–4 固定英→中 100%；下列比例从 Day 5 起生效，总和须为 100%。每题独立随机，不保证单次 session 恰好达到比例。</p>${Object.entries(MODE_LABELS).map(([key,label])=>`<label>${label}（%）<input id="weight-${key}" type="number" min="0" max="100" step="1" required value="${configuredModeWeights()[key]}"></label>`).join('')}<h3 style="margin-top:24px">朗读设置</h3><label><input id="auto-read" type="checkbox" ${s.autoRead!==false?'checked':''}> 自动朗读英文题干及错题反馈</label><label>语速<select id="speech-rate">${[0.75,1,1.25].map(rate=>`<option value="${rate}" ${speechRate()===rate?'selected':''}>${rate}x</option>`).join('')}</select></label><label>语音选择</label><div class="row" style="justify-content:flex-start;align-items:center"><select id="speech-voice" aria-label="语音选择" style="margin:0;min-width:0">${speechVoiceOptions(s.speechVoiceId||'')}</select><button id="preview-voice" type="button">试听</button></div><p class="help">当前语音：<span id="current-voice">${esc(voiceDescription())}</span><br>优先美式英语；使用浏览器提供的语音。听音题始终播放题音，不受自动朗读开关影响；语音不可用时可不计分跳过。</p><button class="primary" type="submit">保存设置</button></form><div class="card" style="margin-top:20px"><h2>词库与数据</h2><p class="muted">已内置 200 个词，无需联网。可选导入含 word,zh,section 三列的 CSV，导入后会覆盖词库及学习记录。建议先导出 JSON 备份。</p><div class="actions"><button id="backup">导出 JSON 备份</button><button id="reimport">导入自定义 CSV</button><button id="reset-learning">重置学习数据</button></div></div>${renderSentenceSettings()}${renderStageHistory()}<details style="margin-top:24px"><summary>调度规则</summary><p class="help">EF 初始 2.5、最低 1.3。快速答对：reps + 1，基础间隔 1、3、7、16、35 天乘以本次 EF；后续为上一间隔 × EF。3–6 秒答对：本次间隔增量减半，至少 1 天。失败（选错或超过 6 秒）：reps 归零，10 分钟后复习，累计错误 + 1。快速答对后 EF + 0.1，慢答后 EF − 0.14，失败后 EF − 0.2。累计错误 ≥ 2 的词每次 session 强制出现一次。正轮结束后，错词立即回炉，最多两轮；回炉每次作答仍按上述规则调度，且不占用新词名额。</p></details>`;
  $('settings').onsubmit=e=>{e.preventDefault();const limit=Number($('limit').value),day=Number($('day').value);if(!Number.isInteger(limit)||limit<1||limit>10000||!Number.isInteger(day)||day<1||day>100000){notify('请输入有效的正整数。');return;}const stageExamDays=parseStageExamDays($('stage-exam-days').value);if(stageExamDays===null){notify('阶段测日须为 1–100000 的整数，用逗号分隔。');return;}const modeWeights=Object.fromEntries(Object.keys(MODE_LABELS).map(k=>[k,Number($('weight-'+k).value)]));if(!validModeWeights(modeWeights)){notify('四种模式比例须为 0–100 的整数，且总和为 100%。');return;}const n=clone();n.settings={...n.settings,limit,day,modeWeights,stageExamDays,autoRead:$('auto-read').checked,speechRate:Number($('speech-rate').value),speechVoiceId:$('speech-voice').value};if(save(n)){notify('设置已保存。');show('settings');}};$('speech-voice').onchange=()=>refreshSpeechVoices($('speech-voice').value);$('preview-voice').onclick=()=>speakWord('This is your vocabulary trainer.',false,{voiceId:$('speech-voice').value,rate:Number($('speech-rate').value)});$('reimport').onclick=importCustomCSV;$('backup').onclick=exportBackup;$('reset-learning').onclick=resetLearningData;bindSentenceSettings();
 }
 function startSession(){const remaining=Math.max(0,db.settings.limit-dayInfo().newIds.length),reviews=reviewWords(),news=db.words.filter(w=>!w.history.length).slice(0,remaining),n=clone();n.session={id:Date.now(),day:db.settings.day,startedAt:Date.now(),pending:[...reviews.map(w=>({id:w.id,type:'review',forced:w.wrongCount>=2})),...news.map(w=>({id:w.id,type:'new',forced:false}))],answers:[],prev:[],round:0};if(!n.session.pending.length){notify('当前没有待学词。可稍后复习或在设置中调整 Day。');return;}if(save(n)){notify();show('study');}}
