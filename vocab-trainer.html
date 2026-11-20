@@ -9,7 +9,7 @@
 </style>
 </head>
 <body>
-<div class="shell"><aside><div class="brand"><i class="mark">v.</i>vocab<span>VCE MATHEMATICS</span></div><nav class="nav" aria-label="主导航"><button id="nav-home" class="active">◉ &nbsp; 今日学习</button><button id="nav-sentences">✎ &nbsp; 句子训练</button><button id="nav-report">▤ &nbsp; 日报</button><button id="nav-settings">⚙ &nbsp; 设置</button></nav><div class="aside-note"><strong>A little, every day.</strong>数学的语言，从这里开始。<br>数据仅保存在当前浏览器。</div></aside>
+<div class="shell"><aside><div class="brand"><i class="mark">v.</i>vocab<span>VCE MATHEMATICS</span></div><nav class="nav" aria-label="主导航"><button id="nav-home" class="active">◉ &nbsp; 单词</button><button id="nav-sentences">✎ &nbsp; 句子</button><button id="nav-eal">EAL</button><button id="nav-report">▤ &nbsp; 日报</button><button id="nav-settings">⚙ &nbsp; 设置</button></nav><div class="aside-note"><strong>A little, every day.</strong>数学的语言，从这里开始。<br>数据仅保存在当前浏览器。</div></aside>
 <main><header class="top"><span>YOUR DAILY VOCABULARY PRACTICE</span><span class="pill" id="day-badge">DAY 01</span></header><div id="notice" class="notice" role="status"></div><div id="view"><p class="loading">正在读取词库…</p></div><footer>VCE 数学词汇训练 · 本地优先 · 无需账户</footer></main></div>
 <script>
 'use strict';
@@ -593,10 +593,115 @@ const SENTENCES = [
   {"en":"Find the coordinates of the image of the given point under the transformation.","zh":"求给定点在变换下的像的坐标。","sec":"u3f"},
   {"en":"State whether the function is one-to-one or many-to-one.","zh":"判断函数是一对一还是多对一。","sec":"u3f"}
 ];
+const EAL_VOCAB = [
+  {"word": "conformity", "zh": "从众；符合", "sec": "eal-social"},
+  {"word": "patriarchy", "zh": "父权制", "sec": "eal-social"},
+  {"word": "gender roles", "zh": "性别角色", "sec": "eal-social"},
+  {"word": "social cohesion", "zh": "社会凝聚力", "sec": "eal-social"},
+  {"word": "hierarchy", "zh": "等级制度", "sec": "eal-social"},
+  {"word": "individualism", "zh": "个人主义", "sec": "eal-social"},
+  {"word": "conservatism", "zh": "保守主义", "sec": "eal-social"},
+  {"word": "tradition", "zh": "传统", "sec": "eal-social"},
+  {"word": "ritual", "zh": "仪式", "sec": "eal-social"},
+  {"word": "prejudice", "zh": "偏见", "sec": "eal-social"},
+  {"word": "oppression", "zh": "压迫", "sec": "eal-social"},
+  {"word": "social order", "zh": "社会秩序", "sec": "eal-social"},
+  {"word": "nuclear family", "zh": "核心家庭", "sec": "eal-social"},
+  {"word": "class structure", "zh": "阶级结构", "sec": "eal-social"},
+  {"word": "American Dream", "zh": "美国梦", "sec": "eal-social"},
+  {"word": "oppressive", "zh": "压抑的", "sec": "eal-atmos"},
+  {"word": "stifling", "zh": "令人窒息的", "sec": "eal-atmos"},
+  {"word": "unsettling", "zh": "令人不安的", "sec": "eal-atmos"},
+  {"word": "disturbing", "zh": "令人困扰的", "sec": "eal-atmos"},
+  {"word": "sinister", "zh": "阴森不祥的", "sec": "eal-atmos"},
+  {"word": "foreboding", "zh": "不祥预感", "sec": "eal-atmos"},
+  {"word": "tense", "zh": "紧张的", "sec": "eal-atmos"},
+  {"word": "mundane", "zh": "平凡乏味的", "sec": "eal-atmos"},
+  {"word": "ominous", "zh": "不吉利的", "sec": "eal-atmos"},
+  {"word": "tranquil", "zh": "宁静的", "sec": "eal-atmos"},
+  {"word": "insular", "zh": "闭塞排外的", "sec": "eal-atmos"},
+  {"word": "rigid", "zh": "僵硬刻板的", "sec": "eal-atmos"},
+  {"word": "docile", "zh": "温顺的", "sec": "eal-char"},
+  {"word": "submissive", "zh": "顺从的", "sec": "eal-char"},
+  {"word": "passive", "zh": "被动的", "sec": "eal-char"},
+  {"word": "defiant", "zh": "公然反抗的", "sec": "eal-char"},
+  {"word": "rebellious", "zh": "叛逆的", "sec": "eal-char"},
+  {"word": "assertive", "zh": "坚定自信的", "sec": "eal-char"},
+  {"word": "domineering", "zh": "盛气凌人的", "sec": "eal-char"},
+  {"word": "controlling", "zh": "控制欲强的", "sec": "eal-char"},
+  {"word": "irrational", "zh": "非理性的", "sec": "eal-char"},
+  {"word": "naive", "zh": "天真的", "sec": "eal-char"},
+  {"word": "vulnerable", "zh": "脆弱易伤的", "sec": "eal-char"},
+  {"word": "self-sacrificing", "zh": "自我牺牲的", "sec": "eal-char"},
+  {"word": "resentful", "zh": "怨恨的", "sec": "eal-char"},
+  {"word": "desperate", "zh": "绝望的", "sec": "eal-char"},
+  {"word": "marginalised", "zh": "被边缘化的", "sec": "eal-char"},
+  {"word": "narrative", "zh": "叙事", "sec": "eal-narr"},
+  {"word": "plot", "zh": "情节", "sec": "eal-narr"},
+  {"word": "setting", "zh": "背景；场景", "sec": "eal-narr"},
+  {"word": "climax", "zh": "高潮", "sec": "eal-narr"},
+  {"word": "resolution", "zh": "结局", "sec": "eal-narr"},
+  {"word": "foreshadowing", "zh": "伏笔铺垫", "sec": "eal-narr"},
+  {"word": "suspense", "zh": "悬念", "sec": "eal-narr"},
+  {"word": "tension", "zh": "张力", "sec": "eal-narr"},
+  {"word": "ambiguity", "zh": "模糊性", "sec": "eal-narr"},
+  {"word": "juxtaposition", "zh": "并置对照", "sec": "eal-narr"},
+  {"word": "allusion", "zh": "典故；暗指", "sec": "eal-lit"},
+  {"word": "connotation", "zh": "内涵联想义", "sec": "eal-lit"},
+  {"word": "dichotomy", "zh": "二元对立", "sec": "eal-lit"},
+  {"word": "figurative", "zh": "比喻性的", "sec": "eal-lit"},
+  {"word": "imagery", "zh": "意象描写", "sec": "eal-lit"},
+  {"word": "metaphor", "zh": "隐喻", "sec": "eal-lit"},
+  {"word": "simile", "zh": "明喻", "sec": "eal-lit"},
+  {"word": "personification", "zh": "拟人", "sec": "eal-lit"},
+  {"word": "irony", "zh": "反讽", "sec": "eal-lit"},
+  {"word": "symbolism", "zh": "象征手法", "sec": "eal-lit"},
+  {"word": "tone", "zh": "语气", "sec": "eal-lit"},
+  {"word": "perspective", "zh": "视角", "sec": "eal-lit"},
+  {"word": "similarly", "zh": "同样", "sec": "eal-logic"},
+  {"word": "whereas", "zh": "然而（对比）", "sec": "eal-logic"},
+  {"word": "conversely", "zh": "相反地", "sec": "eal-logic"},
+  {"word": "contrast", "zh": "对比", "sec": "eal-logic"},
+  {"word": "distinguish", "zh": "区分", "sec": "eal-logic"},
+  {"word": "parallel", "zh": "相似之处", "sec": "eal-logic"},
+  {"word": "mirror", "zh": "映照", "sec": "eal-logic"},
+  {"word": "echo", "zh": "呼应", "sec": "eal-logic"},
+  {"word": "reinforce", "zh": "强化", "sec": "eal-logic"},
+  {"word": "underscore", "zh": "强调", "sec": "eal-logic"},
+  {"word": "consequently", "zh": "因此", "sec": "eal-opinion"},
+  {"word": "furthermore", "zh": "此外", "sec": "eal-opinion"},
+  {"word": "nevertheless", "zh": "然而", "sec": "eal-opinion"},
+  {"word": "on the contrary", "zh": "相反", "sec": "eal-opinion"},
+  {"word": "in essence", "zh": "本质上", "sec": "eal-opinion"},
+  {"word": "arguably", "zh": " arguably", "sec": "eal-opinion"},
+  {"word": "inherently", "zh": " inherently", "sec": "eal-opinion"},
+  {"word": "fundamentally", "zh": "根本上", "sec": "eal-opinion"},
+  {"word": "evidently", "zh": "显然", "sec": "eal-opinion"},
+  {"word": "ultimately", "zh": "归根结底", "sec": "eal-opinion"}
+];
+const EAL_SENTENCES = [
+  {"en": "The story explores the theme of conformity in a small-town community.", "zh": "故事探讨了小镇社区中的从众主题。", "sec": "eal-social"},
+  {"en": "Jackson uses foreshadowing to create a sense of impending doom.", "zh": "杰克逊用伏笔铺垫营造即将到来的厄运感。", "sec": "eal-narr"},
+  {"en": "The oppressive atmosphere reflects the rigid social hierarchy.", "zh": "压抑的氛围反映了僵化的社会等级。", "sec": "eal-atmos"},
+  {"en": "The protagonist's defiant act challenges the patriarchal tradition.", "zh": "主角的反抗行为挑战了父权传统。", "sec": "eal-char"},
+  {"en": "The imagery of the black box symbolises the darkness of human nature.", "zh": "黑匣子的意象象征了人性的阴暗面。", "sec": "eal-lit"},
+  {"en": "Similarly, the villagers' blind obedience mirrors society's compliance.", "zh": "同样，村民的盲目服从映照了社会的顺从。", "sec": "eal-logic"},
+  {"en": "The narrative tension builds steadily towards the shocking climax.", "zh": "叙事张力稳步推向令人震惊的高潮。", "sec": "eal-narr"},
+  {"en": "Tessie's desperate pleas highlight the cruelty of the ritual.", "zh": "苔丝的绝望恳求凸显了仪式的残忍。", "sec": "eal-char"},
+  {"en": "Whereas the opening appears tranquil, the ending is deeply disturbing.", "zh": "开场看似宁静，结局却极其令人不安。", "sec": "eal-logic"},
+  {"en": "The author's detached tone creates dramatic irony.", "zh": "作者冷峻疏离的语气制造了戏剧反讽。", "sec": "eal-lit"},
+  {"en": "Consequently, the reader questions the morality of tradition.", "zh": "因此，读者质疑传统的道德性。", "sec": "eal-opinion"},
+  {"en": "The seemingly mundane setting conceals a sinister undertone.", "zh": "看似平凡的背景隐藏着不祥的暗流。", "sec": "eal-atmos"},
+  {"en": "Old Man Warner's dismissive attitude reveals generational complicity.", "zh": "华纳老人的轻蔑态度揭示了代际共谋。", "sec": "eal-char"},
+  {"en": "The ambiguity of the ending invites multiple interpretations.", "zh": "结局的模糊性允许多种解读。", "sec": "eal-narr"},
+  {"en": "Ultimately, the story critiques the American Dream's dark underbelly.", "zh": "归根结底，故事批判了美国梦的阴暗面。", "sec": "eal-opinion"}
+];
 const SENTENCE_KEY='vce-sentence-trainer-v1';
 let sdb=null,sentenceLoadError='',sentenceQuestion=null,sentenceLocked=false,sentenceClock=null,sentenceFeedbackTimer=null,reportTab='word';
 const KEY='vce-vocab-trainer-v1', DAY=86400000, BASE=[1,3,7,16,35];
 let db=null, screen='home', clock=null, question=null, locked=false, feedbackTimer=null;
+const EAL_KEY='eal_vocab_v1';
+let ealDb=null,ealQuestion=null,ealLocked=false,ealClock=null,ealFeedbackTimer=null;
 const $=id=>document.getElementById(id), esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const createWord=({word,zh,section})=>({id:JSON.stringify([word,zh,section]),word,zh,section,ef:2.5,interval:0,reps:0,due:0,wrongCount:0,history:[]});
 const fresh=()=>({version:1,settings:{limit:50,day:1,autoRead:true,speechRate:1,speechVoiceId:'',stageExamDays:[5,8],modeWeights:{enZh:50,zhEn:15,spelling:15,listening:20}},words:[],days:{},session:null,reports:[],stageHistory:[],stageDays:{}});
@@ -793,17 +898,52 @@ function stageWarning(r){
 }
 function mergedReportErrors(r){return [...metrics(r).errors,...stageResultsForReport(r).flatMap(e=>e.answers.filter(a=>!a.correct).map(a=>({...a,source:'stage'})))];}
 function stageResultText(e){return `${e.date} · Day ${e.day} · 阶段测 ${e.score}分（${e.correct}/${e.total}） · 正确率 ${e.accuracy.toFixed(1)}% · 3秒达标率 ${e.fastRate.toFixed(1)}%`;}
+Warning: truncated output (original token count: 19587)
+Total output lines: 312
+
 function renderStageSummaries(r){const results=stageResultsForReport(r);return results.length?`<div class="card" style="margin-bottom:20px"><h2>今日阶段测</h2>${results.map(e=>`<p>${esc(stageResultText(e))}</p>`).join('')}<p class="help">独立测评，未修改词汇调度或日常新词配额。</p></div>`:'';}
 function renderStageHistory(){return `<div class="card" style="margin-top:20px"><h2>阶段测历史</h2><ul id="stage-history" class="word-list">${[...(db.stageHistory||[])].reverse().map(e=>`<li>${esc(stageResultText(e))}</li>`).join('')||'<li class="empty">暂无阶段测记录。</li>'}</ul></div>`;}
+// EAL owns an isolated store, scheduler, reports, settings and sessions.
+function createEalWord(row){return {id:JSON.stringify([row.word,row.zh,row.sec]),word:row.word,zh:row.zh,section:row.sec,ef:2.5,interval:0,reps:0,due:0,wrongCount:0,history:[]};}
+function createEalSentence(row){return {id:JSON.stringify([row.en,row.sec]),en:row.en,zh:row.zh,section:row.sec,ef:2.5,interval:0,reps:0,due:0,wrongCount:0,history:[]};}
+function freshEal(){return {version:1,settings:{limit:12,day:1,stageExamDays:[7,14],modeWeights:{enZh:34,zhEn:33,spelling:33}},words:EAL_VOCAB.map(createEalWord),sentences:EAL_SENTENCES.map(createEalSentence),days:{},sentenceDays:{},session:null,reports:[],stageDays:{}};}
+function saveEal(next=ealDb){try{localStorage.setItem(EAL_KEY,JSON.stringify(next));ealDb=next;return true;}catch{notify('EAL数据无法保存，请检查浏览器存储。其他模块数据未改动。');return false;}}
+function cloneEal(){return JSON.parse(JSON.stringify(ealDb));}
+function initEalData(){try{const raw=localStorage.getItem(EAL_KEY);if(!raw){ealDb=freshEal();saveEal(ealDb);return;}const d=JSON.parse(raw);if(d?.version!==1||!Array.isArray(d.words)||!Array.isArray(d.sentences)||!d.settings||!d.days||!Array.isArray(d.reports))throw Error('EAL数据结构不完整');d.sentenceDays??={};d.stageDays??={};d.settings={limit:12,day:1,stageExamDays:[7,14],modeWeights:{enZh:34,zhEn:33,spelling:33},...d.settings};d.settings.modeWeights={enZh:34,zhEn:33,spelling:33,...d.settings.modeWeights};let changed=false;const wi=new Set(d.words.map(x=>x.id)),si=new Set(d.sentences.map(x=>x.id));for(const row of EAL_VOCAB){const x=createEalWord(row);if(!wi.has(x.id)){d.words.push(x);wi.add(x.id);changed=true;}}for(const row of EAL_SENTENCES){const x=createEalSentence(row);if(!si.has(x.id)){d.sentences.push(x);si.add(x.id);changed=true;}}ealDb=d;if(changed)saveEal(d);}catch(error){ealDb=null;console.error('EAL data unavailable',error);}}
+function ealDayInfo(day=ealDb.settings.day){return ealDb.days[day]||{newIds:[]};}
+function ealDue(now=Date.now(),kind='word'){return (kind==='sentence'?ealDb.sentences:ealDb.words).filter(x=>x.history.length&&(x.wrongCount>=2||x.due<=now)).sort((a,b)=>(b.wrongCount>=2)-(a.wrongCount>=2)||a.due-b.due);}
+function ealModes(){const m=ealDb.settings.modeWeights,total=['enZh','zhEn','spelling'].reduce((a,k)=>a+(m[k]||0),0)||100,r=Math.random()*total;let sum=0;for(const k of ['enZh','zhEn','spelling']){sum+=m[k]||0;if(r<sum)return k;}return 'spelling';}
+function ealModeFor(){return ealDb.settings.day<3?'enZh':ealModes();}
+function ealOptions(target,kind='word'){const rows=kind==='sentence'?ealDb.sentences:ealDb.words,meaning=x=>x.zh.trim(),out=[target],seen=new Set([meaning(target)]);for(const pool of [shuffled(rows.filter(x=>x.section===target.section&&x.id!==target.id)),shuffled(rows.filter(x=>x.id!==target.id))])for(const x of pool){if(seen.has(meaning(x)))continue;seen.add(meaning(x));out.push(x);if(out.length===3)return shuffled(out);}return null;}
+function ealLearnedIds(day=ealDb.settings.day){return new Set(Object.entries(ealDb.days).filter(([d])=>Number(d)<=day).flatMap(([,x])=>x.newIds||[]));}
+function maybePromptEalStage(){const date=localDate();if(!ealDb.settings.stageExamDays.includes(ealDb.settings.day)||ealDb.stageDays[date])return false;const count=Math.min(30,ealDb.words.filter(w=>ealLearnedIds().has(w.id)).length);if(!count)return false;if(!confirm(`EAL阶段测：今天有${count}个已学词，开始吗？`)){const n=cloneEal();n.stageDays[date]={status:'skipped',day:n.settings.day};saveEal(n);return false;}return startEalSession('stage');}
+function startEalSession(target='word',forcedMode=''){
+ const n=cloneEal(),day=n.settings.day,date=localDate();let pending=[];
+ if(target==='stage'){pending=shuffled(n.words.filter(w=>ealLearnedIds(day).has(w.id))).slice(0,30).map(w=>({id:w.id,type:'stage',mode:'enZh'}));}
+ else{const rows=target==='sentence'?n.sentences:n.words,due=ealDue(Date.now(),target),used=target==='sentence'?(n.sentenceDays[date]?.newIds||[]):(n.days[day]?.newIds||[]),limit=Math.max(0,n.settings.limit-used.length),fresh=rows.filter(x=>!x.history.length&&!used.includes(x.id)).slice(0,limit);pending=[...due.map(x=>({id:x.id,type:'review',forced:x.wrongCount>=2,mode:target==='sentence'?'sentence':forcedMode||ealModeFor()})),...fresh.map(x=>({id:x.id,type:'new',forced:false,mode:target==='sentence'?'sentence':forcedMode||ealModeFor()}))];}
+ if(!pending.length){notify(target==='stage'?'当前没有已学EAL词可参加阶段测。':'当前没有待训练的EAL内容。');return;}n.session={id:Date.now(),target:target==='stage'?'word':target,kind:target==='stage'?'stage':'practice',day,date,round:0,answers:[],pending};if(saveEal(n)){notify();show('ealStudy');}
+}
+function ealRetakeIds(s){const passed=new Set(s.answers.filter(a=>a.round>0&&a.success).map(a=>a.id));return [...new Set(s.answers.filter(a=>a.round===s.round&&!a.success).map(a=>a.id))].filter(id=>!passed.has(id));}
+function renderEalHome(){if(!ealDb){$('view').innerHTML='<h1>EAL数据暂不可用</h1><p>浏览器无法读取EAL独立存储；其他模块数据未改动。</p>';return;}if(maybePromptEalStage())return;const d=ealDb.settings.day,used=ealDayInfo().newIds.length,learned=ealDb.words.filter(w=>w.history.length).length,due=ealDue().length;$('view').innerHTML=`<div class="eyebrow">EAL WRITING · DAY ${d}</div><h1>EAL词汇与表达</h1><p class="subtitle">独立EAL训练；数据与单词、句子模块隔离。</p><div class="section-grid"><span class="section-tag">${d<3?'Day 1–2：英→中':'Day 3起：三种模式等权'}</span><span class="section-tag">掌握 &lt;5秒 · 半熟 5–10秒 · 错误 &gt;10秒或答错</span></div><div class="card hero"><div><h2>今天的 EAL 练习</h2><p>到期复习优先，每日最多新学 ${ealDb.settings.limit} 词。</p><div class="actions"><button id="eal-start" class="primary">开始 EAL 词汇 ↗</button><button id="eal-listen">听音加练</button><button id="eal-examples">例句训练</button></div></div></div><div class="stats"><div class="stat"><span class="label">待复习 / 高危词</span><span class="value">${due}</span></div><div class="stat"><span class="label">Day ${d} 新词进度</span><span class="value">${used}<span class="tiny muted"> / ${ealDb.settings.limit}</span></span></div><div class="stat"><span class="label">累计接触 EAL 词</span><span class="value">${learned}<span class="tiny muted"> / ${ealDb.words.length}</span></span></div></div><div class="card"><h2>EAL词库</h2><div class="section-grid">${[...new Set(ealDb.words.map(w=>w.section))].map(sec=>`<span class="section-tag">${esc(sec)} · ${ealDb.words.filter(w=>w.section===sec).length}</span>`).join('')}</div></div><div class="actions"><button id="eal-report">EAL日报</button><button id="eal-settings-open">EAL设置</button><button id="eal-examples-report">例句记录</button></div>`;$('eal-start').onclick=()=>startEalSession();$('eal-listen').onclick=()=>startEalSession('word','listening');$('eal-examples').onclick=()=>startEalSession('sentence');$('eal-report').onclick=()=>show('ealReport');$('eal-settings-open').onclick=()=>show('ealSettings');$('eal-examples-report').onclick=()=>show('ealSentenceReport');}
+function renderEalSettings(){const s=ealDb.settings;$('view').innerHTML=`<div class="eyebrow">EAL SETTINGS</div><h1>EAL设置</h1><form id="eal-settings" class="card"><label>每天新词上限<input id="eal-limit" type="number" min="1" max="10000" value="${s.limit}"></label><label>当前Day<input id="eal-day" type="number" min="1" max="100000" value="${s.day}"></label><label>阶段测日<input id="eal-exams" type="text" value="${esc(s.stageExamDays.join(', '))}"></label><p class="help">默认Day 7、14；与数学阶段测完全独立。</p><h3>Day ≥3 模式比例</h3>${[['enZh','英→中'],['zhEn','中→英'],['spelling','拼写']].map(([k,l])=>`<label>${l}（%）<input id="eal-w-${k}" type="number" min="0" max="100" value="${s.modeWeights[k]}"></label>`).join('')}<p class="help">三种模式权重总和须为100%。听音在首页单独加练；Day 1–2 固定英→中。</p><button class="primary">保存EAL设置</button></form><div class="actions"><button id="eal-back">返回EAL</button><button id="eal-backup">导出EAL备份</button></div>`;$('eal-settings').onsubmit=e=>{e.preventDefault();const limit=Number($('eal-limit').value),day=Number($('eal-day').value),examText=$('eal-exams').value.trim(),exams=examText?examText.split(/[,，\s]+/).map(Number):[],weights=Object.fromEntries(['enZh','zhEn','spelling'].map(k=>[k,Number($('eal-w-'+k).value)]));if(!Number.isInteger(limit)||limit<1||!Number.isInteger(day)||day<1||exams.some(x=>!Number.isInteger(x)||x<1)||Object.values(weights).some(x=>!Number.isInteger(x)||x<0)||Object.values(weights).reduce((a,b)=>a+b,0)!==100){notify('请检查上限、Day、阶段测日和模式比例。');return;}const n=cloneEal();n.settings={...n.settings,limit,day,stageExamDays:[...new Set(exams)],modeWeights:weights};if(saveEal(n)){notify('EAL设置已保存。');show('ealSettings');}};$('eal-back').onclick=()=>show('ealHome');$('eal-backup').onclick=()=>downloadJSON({...ealDb,exportedAt:new Date().toISOString()},'eal-backup.json');}
+function renderEalQuestion(){const s=ealDb?.session;if(!s)return show('ealHome');if(!s.pending.length){const ids=s.kind==='stage'?[]:ealRetakeIds(s);if(s.round<2&&ids.length){$('view').innerHTML=`<div class="card"><h1>EAL错词回炉</h1><p>${ids.length}个词需要再练一轮。</p><button id="eal-retake" class="primary">开始回炉</button><button id="eal-finish">结束并查看日报</button></div>`;$('eal-retake').onclick=()=>{const n=cloneEal();n.session.round++;n.session.pending=ids.map(id=>({id,type:'relearn',mode:n.session.target==='sentence'?'sentence':ealModeFor()}));saveEal(n);show('ealStudy');};$('eal-finish').onclick=finishEalSession;return;}finishEalSession();return;}const item=s.pending[0],rows=s.target==='sentence'?ealDb.sentences:ealDb.words,target=rows.find(x=>x.id===item.id);if(!target){finishEalSession();return;}const mode=item.mode||'enZh',q={target,item,mode,options:s.target==='sentence'?ealOptions(target,'sentence'):ealOptions(target),started:performance.now()};ealQuestion=q;ealLocked=false;const spelling=mode==='spelling',listening=mode==='listening',choices=q.options?.map(x=>s.target==='sentence'?x.zh:mode==='zhEn'?x.word:x.zh);if(!spelling&&!choices){$('view').innerHTML='<h1>EAL干扰项不足</h1><p>该小节可用的不同释义不足三个。</p><button id="eal-back">返回EAL</button>';$('eal-back').onclick=()=>show('ealHome');return;}const label=s.target==='sentence'?'句意选择':({enZh:'英→中',zhEn:'中→英',spelling:'拼写',listening:'听音'})[mode]||'英→中';$('view').innerHTML=`<div class="row"><div><div class="eyebrow">EAL · ${s.kind==='stage'?'阶段测':s.target==='sentence'?'例句训练':item.forced?'高危词':item.type==='review'?'到期复习':'新词'}</div><h2>${label}</h2></div><button id="eal-finish" class="small">结束训练</button></div><div class="row tiny muted"><span>${s.answers.length+1} / ${s.answers.length+s.pending.length}</span><span id="eal-timer" class="timer green">0.0 s</span></div><div class="card question"><span class="pill">${esc(target.section)}</span><div class="word">${listening?'🔊':esc(s.target==='sentence'?target.en:mode==='zhEn'?target.zh:target.word)}</div>${listening?'<button id="eal-play">播放英文</button>':''}</div>${spelling?'<form id="eal-spelling" class="card"><label>英文拼写<input id="eal-answer" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" required></label><button class="primary">提交</button></form>':`<div class="options">${choices.map((x,i)=>`<button class="option" data-i="${i}"><span class="key">${i+1}</span>${esc(x)}</button>`).join('')}</div>`}<div id="eal-feedback" aria-live="polite"></div><button id="eal-next" class="primary" hidden>下一题</button><p class="help">答对且 &lt;5秒掌握；5–10秒半熟；答错或 &gt;10秒按错误复习。</p>`;$('eal-finish').onclick=finishEalSession;if(listening)$('eal-play').onclick=()=>speakWord(target.word,false);document.querySelectorAll('#view .option').forEach(b=>b.onclick=()=>answerEal(Number(b.dataset.i)));if(spelling){$('eal-spelling').onsubmit=e=>{e.preventDefault();answerEal($('eal-answer').value);};$('eal-answer').focus();}ealClock=setInterval(()=>{if(ealQuestion!==q||ealLocked)return;const t=(performance.now()-q.started)/1000,el=$('eal-timer');if(el){el.textContent=t.toFixed(1)+' s';el.className='timer '+(t<5?'green':t<=10?'yellow':'red');}},80);}
+function answerEal(value){const q=ealQuestion,s=ealDb?.session;if(!q||!s||ealLocked)return;let correct,chosen;if(s.target==='sentence'){correct=Number.isInteger(value)&&q.options[value]?.id===q.target.id;chosen=q.options[value]?.zh||'';}else if(q.mode==='spelling'){if(typeof value!=='string'||!normalizeSpelling(value))return;correct=normalizeSpelling(value)===normalizeSpelling(q.target.word);chosen=value;}else{if(!Number.isInteger(value)||!q.options[value])return;correct=q.options[value].id===q.target.id;chosen=q.mode==='zhEn'?q.options[value].word:q.options[value].zh;}const seconds=(performance.now()-q.started)/1000,now=Date.now(),n=cloneEal(),row=(s.target==='sentence'?n.sentences:n.words).find(x=>x.id===q.target.id),result=s.kind==='stage'?{fast:correct&&seconds<5,success:correct&&seconds<=10}:schedule(row,correct,seconds,now,5,10),rec={id:row.id,word:row.word||row.en,zh:row.zh,section:row.section,type:q.item.type,mode:q.mode,round:s.round,correct,success:result.success,fast:result.fast,seconds,at:now,day:s.day,chosen};if(s.kind!=='stage')row.history.push(rec);n.session.answers.push(rec);n.session.pending.shift();if(q.item.type==='new'&&s.kind!=='stage'){const map=s.target==='sentence'?n.sentenceDays:n.days,key=s.target==='sentence'?s.date:s.day,d=map[key]||(map[key]={newIds:[]});if(!d.newIds.includes(row.id))d.newIds.push(row.id);}if(!saveEal(n))return;ealLocked=true;clearInterval(ealClock);const color=result.fast?'green':result.success?'yellow':'red';$('eal-timer').className='timer '+color;$('eal-timer').textContent=seconds.toFixed(2)+' s';$('eal-feedback').className='feedback '+color;$('eal-feedback').innerHTML=`<strong>${result.fast?'掌握了。':result.success?'答对了，再巩固一次。':correct?'超过10秒，按错误复习。':'记住答案，下次再试。'}</strong><br>答案：${esc(s.target==='sentence'?row.zh:q.mode==='zhEn'?row.word:row.zh)} · ${result.success?row.interval.toFixed(1)+'天后复习':s.kind==='stage'?'阶段测不改变调度':'10分钟后复习'}`;if(q.mode==='spelling')$('eal-answer').disabled=true;document.querySelectorAll('#view .option').forEach(b=>b.disabled=true);$('eal-next').hidden=false;$('eal-next').disabled=!result.success;$('eal-next').textContent=n.session.pending.length?'下一题 →':'完成训练 →';$('eal-finish').disabled=!result.success;if(!result.success)ealFeedbackTimer=setTimeout(()=>{if(ealQuestion===q){$('eal-next').disabled=false;$('eal-finish').disabled=false;}},1800);$('eal-next').onclick=()=>show('ealStudy');}
+function finishEalSession(){clearInterval(ealClock);clearTimeout(ealFeedbackTimer);const n=cloneEal(),s=n.session;if(!s)return;const rows=s.target==='sentence'?n.sentences:n.words,dayNew=(s.target==='sentence'?(n.sentenceDays[s.date]?.newIds||[]):(n.days[s.day]?.newIds||[])).length,r={id:s.id,day:s.day,date:localDate(),endedAt:Date.now(),kind:s.target,stageOnly:s.kind==='stage',answers:s.answers,totalLearned:rows.filter(x=>x.history.length).length,totalWords:rows.length,dayNew,limit:n.settings.limit};n.reports.push(r);if(s.kind==='stage')n.stageDays[s.date]={status:'completed',day:s.day};n.session=null;if(saveEal(n)){ealQuestion=null;show(s.target==='sentence'?'ealSentenceReport':'ealReport');}}
+function renderEalReport(){const r=[...ealDb.reports].reverse().find(x=>x.kind==='word');if(!r){$('view').innerHTML='<h1>EAL日报</h1><p>完成一次EAL词汇训练后，这里会显示独立日报。</p><button id="eal-back">返回EAL</button>';$('eal-back').onclick=()=>show('ealHome');return;}const a=r.answers||[],news=a.filter(x=>x.type==='new').length,reviews=a.filter(x=>x.type==='review').length,accuracy=a.length?a.filter(x=>x.correct).length/a.length*100:0,fast=a.length?a.filter(x=>x.fast).length/a.length*100:0,avg=a.length?a.reduce((n,x)=>n+x.seconds,0)/a.length:0,groups=a.filter(x=>!x.success).reduce((o,x)=>((o[x.section]??=[]).push(x),o),{});$('view').innerHTML=`<div class="eyebrow">EAL REPORT · DAY ${r.day}</div><h1>EAL日报</h1><div class="stats report-stats">${[['今日新学',news],['复习',reviews],['正确率',accuracy.toFixed(1)+'%'],['5秒达标率',fast.toFixed(1)+'%'],['平均反应时',avg.toFixed(2)+'秒'],['累计接触词',r.totalLearned+'/'+r.totalWords]].map(([k,v])=>`<div class="stat"><span class="label">${k}</span><span class="value">${v}</span></div>`).join('')}</div><div class="card"><h2>错词 · 按小节</h2>${Object.entries(groups).map(([sec,rows])=>`<h3>${esc(sec)}</h3><ul class="word-list">${rows.map(x=>`<li>${esc(x.word)}<small>${esc(x.zh)} · ${x.seconds.toFixed(2)}秒</small></li>`).join('')}</ul>`).join('')||'<p>本次没有错词。</p>'}</div><div class="actions"><button id="eal-back" class="primary">返回EAL</button><button id="eal-nextday">进入下一Day</button><button id="eal-backup">导出EAL备份</button></div>`;$('eal-back').onclick=()=>show('ealHome');$('eal-nextday').onclick=()=>{const n=cloneEal();n.settings.day=Math.max(n.settings.day,r.day)+1;saveEal(n);show('ealHome');};$('eal-backup').onclick=()=>downloadJSON({...ealDb,exportedAt:new Date().toISOString()},'eal-backup.json');}
+function renderEalSentenceReport(){const r=[...ealDb.reports].reverse().find(x=>x.kind==='sentence');if(!r){$('view').innerHTML='<h1>EAL例句训练</h1><p>练习完例句后会显示记录。</p><button id="eal-back">返回EAL</button>';$('eal-back').onclick=()=>show('ealHome');return;}const a=r.answers||[];$('view').innerHTML=`<h1>EAL例句训练</h1><p>${a.length}题 · 正确 ${a.filter(x=>x.correct).length} · 平均 ${a.length?(a.reduce((n,x)=>n+x.seconds,0)/a.length).toFixed(2):'0'}秒</p><div class="card">${a.map(x=>`<p><strong>${esc(x.word)}</strong> · ${esc(x.zh)}<br><span class="muted">${esc(x.section)}</span></p>`).join('')||'暂无记录'}</div><button id="eal-back">返回EAL</button>`;$('eal-back').onclick=()=>show('ealHome');}
 function show(name){
  if(db?.session&&name!=='study'){notify('请先结束当前单词 session，再切换模块。');return;}
  if(sdb?.session&&name!=='sentenceStudy'){notify('请先结束当前句子 session，再切换模块。');return;}
+ if(ealDb?.session&&name!=='ealStudy'){notify('请先结束当前EAL session，再切换模块。');return;}
  clearInterval(clock);clearTimeout(feedbackTimer);clearInterval(sentenceClock);clearTimeout(sentenceFeedbackTimer);screen=name;question=null;locked=false;sentenceQuestion=null;sentenceLocked=false;
- document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.id==='nav-'+(name==='sentenceStudy'?'sentences':name==='study'?'home':name)));
+ clearInterval(ealClock);clearTimeout(ealFeedbackTimer);ealQuestion=null;ealLocked=false;
+ document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.id==='nav-'+(name==='sentenceStudy'?'sentences':name==='study'?'home':name.startsWith('eal')?'eal':name)));
  const isSentence=name==='sentences'||name==='sentenceStudy'||(name==='report'&&reportTab==='sentence');
- if(!db&&!isSentence){renderImport();return;}
- $('day-badge').textContent=isSentence?'句子 · '+localDate():'DAY '+String(db.settings.day).padStart(2,'0');
- ({home:renderHome,settings:renderSettings,study:renderQuestion,report:renderReport,sentences:renderSentenceHome,sentenceStudy:renderSentenceQuestion}[name]||renderHome)();
+ const isEal=name.startsWith('eal');
+ if(isEal&&!ealDb){renderEalHome();return;}
+ if(!db&&!isSentence&&!isEal){renderImport();return;}
+ $('day-badge').textContent=isEal?'EAL · DAY '+String(ealDb.settings.day).padStart(2,'0'):isSentence?'句子 · '+localDate():'DAY '+String(db.settings.day).padStart(2,'0');
+ ({home:renderHome,settings:renderSettings,study:renderQuestion,report:renderReport,sentences:renderSentenceHome,sentenceStudy:renderSentenceQuestion,ealHome:renderEalHome,ealSettings:renderEalSettings,ealStudy:renderEalQuestion,ealReport:renderEalReport,ealSentenceReport:renderEalSentenceReport}[name]||renderHome)();
 }
 function renderHome(){if(maybePromptStageExam())return;const weights=effectiveModeWeights();const learned=db.words.filter(w=>w.history.length).length,used=dayInfo().newIds.length,quota=Math.max(0,db.settings.limit-used),due=reviewWords().length;
  $('view').innerHTML=`<div class="eyebrow">DAILY PRACTICE / DAY ${esc(db.settings.day)}</div><h1>每天一点，熟悉每一个词。</h1><p class="subtitle">先巩固，再前进。用三秒钟，把数学语言变成直觉。</p><div class="section-grid" id="mode-ratios">${Object.entries(MODE_LABELS).map(([key,label])=>`<span class="section-tag">${label} ${weights[key]}%</span>`).join('')}</div><p class="help">${db.settings.day<5?'Day 1–4：英→中基础阶段':'Day ≥5：按比例逐题随机，含复习与回炉'}</p><div class="card hero"><div><h2>今天，从一次专注开始</h2><p>高危词优先 → 到期复习 → 今日新词。<br>本轮错词自动回炉，最多重考两轮。</p><div class="actions"><button id="start" class="primary" ${!due&&!quota?'disabled':''}>开始今日训练 &nbsp; ↗</button><span class="tiny muted">今日剩余 ${quota} 个新词名额</span></div></div><div class="hero-symbol">ƒ(x)</div></div><div class="stats"><div class="stat"><span class="label">待复习 / 含高危词</span><span class="value">${due}</span><span class="tiny muted">先唤醒已有记忆</span></div><div class="stat"><span class="label">Day ${db.settings.day} 新词进度</span><span class="value">${used}<span class="tiny muted"> / ${db.settings.limit}</span></span><span class="tiny muted">多次训练累计计数</span></div><div class="stat"><span class="label">累计接触词汇</span><span class="value">${learned}<span class="tiny muted"> / ${db.words.length}</span></span><span class="tiny muted">一步一步，持续积累</span></div></div><div class="card"><div class="row"><h3>你的词库</h3><span class="tiny muted">${db.words.length} WORDS</span></div><div class="progress"><span style="width:${learned/db.words.length*100}%"></span></div><div class="section-grid">${[...new Set(db.words.map(w=>w.section))].map(s=>`<span class="section-tag">${esc(s)} · ${db.words.filter(w=>w.section===s).length}</span>`).join('')}</div></div>`;
@@ -831,107 +971,7 @@ function advanceSession(){
  const s=db.session;if(!s)return show('home');
  const ids=relearnCandidates(s),nextRound=(s.round||0)+1;
  if(nextRound>2||!ids.length)return finishSession();
- $('view').innerHTML=`<div class="card" role="dialog" aria-modal="true" aria-labelledby="relearn-title"><div class="eyebrow">LEARNING STEPS / ${nextRound} OF 2</div><h1 id="relearn-title">回炉重考</h1><p class="subtitle">${nextRound===1?'正轮已结束':'上一轮回炉已结束'}，${ids.length} 个错词需要再巩固一次。</p><p>立即重考，不用等 10 分钟。答对且不超时即标记「已回炉」，本次 session 不再出现；最多连续两轮。</p><p class="help">每次作答仍按原 SM-2 规则更新。两轮后仍错或超时，10 分钟后复习。</p><div class="actions"><button id="begin-relearn" class="primary">开始第 ${nextRound} 轮回炉 →</button><button id="skip-relearn">结束并查看日报</button></div></div>`;
- $('begin-relearn').onclick=()=>{
-  const n=clone();n.session.round=nextRound;n.session.pending=ids.map(id=>({id,type:'relearn',forced:false}));
-  if(save(n)){notify();show('study');}
- };
- $('skip-relearn').onclick=finishSession;$('begin-relearn').focus();
-}
-function endStudy(){
- if((db.session?.round||0)>0)return finishSession();
- const n=clone();if(!n.session)return; n.session.pending=[];
- if(save(n)){notify();show('study');}
-}
-let listeningReviewRequest=null;
-function listeningStatus(text){const el=$('listening-status');if(el)el.textContent=text;}
-function requestListeningAudio(q){
- if(question!==q||locked)return false;
- const accepted=speakWord(q.word.word,false,{
-  guard:()=>question===q&&!locked,
-  onStart:()=>{if(question!==q||locked)return;if(q.started===null)q.started=performance.now();q.audioFailed=false;document.querySelectorAll('.option').forEach(b=>b.disabled=false);listeningStatus('请根据听到的单词选择中文释义。');$('skip-listening').hidden=true;},
-  onEnd:()=>{if(question===q&&!locked)q.audioComplete=true;},
-  onError:error=>{if(question!==q||locked||error?.error==='queue-replaced')return;q.autoReadAttempted=false;if(!q.audioComplete){q.started=null;q.audioFailed=true;document.querySelectorAll('.option').forEach(b=>b.disabled=true);listeningStatus('朗读未成功，请重试，或跳过本题（不计作答）。');$('skip-listening').hidden=false;}}
- });
- if(!accepted){listeningStatus('点击页面后重试朗读；语音不可用时可不计分跳过。');$('skip-listening').hidden=false;}
- return accepted;
-}
-function finishListeningReview(){
- const review=db.session?.listeningReview;if(!review||review.remaining>0)return;
- const wait=review.unlockAt-Date.now();if(wait>0){feedbackTimer=setTimeout(finishListeningReview,wait);return;}
- const n=clone();n.session.listeningReview=null;if(save(n)){listeningReviewRequest=null;show('study');}
-}
-function startListeningReview(){
- const r=db.session?.listeningReview;if(!r||listeningReviewRequest===r.token)return;
- if(r.remaining===1&&r.notBefore>Date.now()){clearTimeout(feedbackTimer);feedbackTimer=setTimeout(startListeningReview,r.notBefore-Date.now());return;}
- if(r.remaining===0){finishListeningReview();return;}
- const w=db.words.find(w=>w.id===r.id),token=r.token;listeningReviewRequest=token;
- const failed=()=>{if(db.session?.listeningReview?.token!==token)return;listeningReviewRequest=null;listeningStatus('重读不可用，可重试或继续学习；本次失败记录与调度已保留。');$('retry-listening-review').hidden=false;$('continue-listening-review').hidden=false;};
- const accepted=speakWord(w.word,false,{repeat:r.remaining===2?2:1,gap:1000,guard:()=>db.session?.listeningReview?.token===token,
-  onStart:()=>listeningStatus('正在重读，请听完两遍后继续。'),
-  onEachEnd:()=>{if(db.session?.listeningReview?.token!==token)return;const n=clone();n.session.listeningReview.remaining--;n.session.listeningReview.notBefore=Date.now()+1000;if(save(n))listeningStatus('剩余重读 '+n.session.listeningReview.remaining+' 遍。');},
-  onEnd:()=>{listeningReviewRequest=null;finishListeningReview();},onError:failed
- });
- if(!accepted)failed();
-}
-function renderListeningReview(){
- const r=db.session.listeningReview,w=db.words.find(w=>w.id===r.id);locked=true;question=null;
- $('view').innerHTML=`<div class="eyebrow">听音订正</div><h1>再听两遍，记住这个词。</h1><div class="card"><h2 lang="en">${esc(w.word)}</h2><p>${esc(w.zh)}</p><p id="listening-status" role="status">等待重读，两遍间隔 1 秒，完成后自动继续。</p><div class="actions"><button id="retry-listening-review" hidden>重试朗读</button><button id="continue-listening-review" hidden>继续学习（重读不可用）</button></div></div>`;
- $('retry-listening-review').onclick=()=>{ $('retry-listening-review').hidden=true;$('continue-listening-review').hidden=true;startListeningReview();};
- $('continue-listening-review').onclick=()=>{const n=clone();n.session.listeningReview=null;if(save(n)){listeningReviewRequest=null;show('study');}};
- if(r.remaining===1&&r.notBefore>Date.now()){feedbackTimer=setTimeout(startListeningReview,r.notBefore-Date.now());}else startListeningReview();
-}
-function renderCorrection(){
- const c=db.session.correction,w=db.words.find(w=>w.id===c.id);clearInterval(clock);clearTimeout(feedbackTimer);locked=true;question=null;
- $('view').innerHTML=`<div class="eyebrow">SPELLING CORRECTION</div><h1>再写一遍，记住这个词。</h1><div class="card"><span class="pill">${esc(w.section)}</span><p>${esc(w.zh)}</p><h2 lang="en">${esc(w.word)}</h2><p class="red">拼写不正确。请抄写上面的正确拼写才能继续。</p><p class="help">本题 ${c.seconds.toFixed(2)} 秒 · 10 分钟后复习。订正不会增加答题次数或改变本次调度。</p><button id="replay-word" type="button" class="small">🔊 再听一遍</button><form id="correction-form"><label>抄写正确拼写<input id="copy-spelling" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" required></label><button id="confirm-copy" class="primary" disabled>确认订正并继续 →</button><p id="copy-hint" class="help" aria-live="polite">请查看正确答案，2 秒后可确认。</p></form></div>`;
- $('replay-word').onclick=()=>speakWord(w.word,false);
- $('correction-form').onsubmit=e=>{e.preventDefault();if(Date.now()<c.unlockAt)return;if(normalizeSpelling($('copy-spelling').value)!==normalizeSpelling(w.word)){$('copy-hint').textContent='还不正确，请按上方的正确拼写重新输入。';return;}const n=clone();n.session.correction=null;if(save(n)){notify();show('study');}};
- const enable=()=>{$('confirm-copy').disabled=false;$('copy-hint').textContent='输入正确拼写后，即可继续。';};
- const wait=Math.max(0,c.unlockAt-Date.now());if(wait)feedbackTimer=setTimeout(enable,wait);else enable();
- $('copy-spelling').focus();speakWord(w.word);
-}
-function renderQuestion(){
- let s=db.session;if(!s)return show('home');if(s.listeningReview)return renderListeningReview();if(s.correction)return renderCorrection();if(!s.pending.length)return s.kind==='stage'?finishStageExam():advanceSession();
- if(!Object.hasOwn(MODE_LABELS,s.pending[0].mode)){const n=clone();n.session.pending[0].mode=chooseQuestionMode(s.day);if(!save(n))return;s=db.session;}
- const item=s.pending[0],mode=item.mode,w=db.words.find(w=>w.id===item.id),options=mode==='spelling'?[]:makeOptions(w,s.kind==='stage'?[]:s.prev);
- if(!options){$('view').innerHTML=`<h1>本题暂无可用干扰项</h1><p class="subtitle">${esc(w.word)} 所在 section 无法同时满足不同释义、不与上一题选项重复、英文不互为子串的规则。请结束 session 并检查词库。</p><button id="finish" class="primary">结束并查看日报</button>`;$('finish').onclick=s.kind==='stage'?abandonStageExam:finishSession;return;}
- const count=s.answers.filter(a=>(a.round||0)===(s.round||0)).length,total=count+s.pending.length;question={word:w,item,mode,options,started:mode==='listening'?null:performance.now()};locked=false;
- const instruction=mode==='enZh'?'选择正确的中文释义':mode==='zhEn'?'选择正确的英文单词':mode==='listening'?'听单词，选择正确的中文释义':'请输入对应的英文单词（忽略大小写和首尾空格）';
- $('view').innerHTML=`<div class="row"><div><div class="eyebrow">FOCUS SESSION · ${MODE_LABELS[mode]}</div><h2 style="margin:8px 0">${s.kind==='stage'?'阶段测 · '+total+' 词':(s.round||0)>0?'回炉重考 · 第 '+s.round+' / 2 轮':item.forced?'高危词强化':item.type==='review'?'到期复习':'学习新词'}</h2></div><button id="finish" class="small quiet">${s.kind==='stage'?'退出阶段测':(s.round||0)>0?'结束回炉':'结束正轮'}</button></div><div class="row tiny muted" style="margin:16px 0 8px"><span>已完成 ${count} / ${total}</span><span>${s.kind==='stage'?'独立计分 · 不影响调度':(s.round||0)>0?'答对且不超时 → 已回炉':'先复习 · 后新词'}</span></div><div class="progress" role="progressbar" aria-label="训练进度" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${count}"><span style="width:${count/total*100}%"></span></div><div class="card question"><div class="row"><span class="pill">${mode==='listening'?'听音':esc(w.section)}</span><span id="timer" class="timer green" aria-label="答题计时">0.0 s</span></div><div class="word" lang="${mode==='enZh'?'en':'zh-CN'}">${mode==='listening'?'🔊':esc(mode==='enZh'?w.word:w.zh)}</div><span class="tiny muted">${instruction}</span><div class="actions" style="justify-content:center;margin-top:16px"><button id="replay-word" class="small" type="button">🔊 再听一遍</button></div></div>${mode==='spelling'?'<form id="spelling-form" class="card" style="margin-top:20px"><label>英文拼写<input id="spelling-answer" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" required></label><button id="submit-spelling" class="primary">提交答案</button></form>':`<div class="options">${options.map((o,i)=>`<button class="option" data-index="${i}"><span class="key">${i+1}</span><span>${esc(mode==='zhEn'?o.word:o.zh)}</span></button>`).join('')}</div>`}<p id="listening-status" role="status" ${mode!=='listening'?'hidden':''}>${mode==='listening'?'等待语音开始播放后计时…':''}</p><button id="skip-listening" class="small" hidden>跳过此题（不计作答）</button><div id="feedback" aria-live="polite"></div><div class="actions"><button id="next" class="primary" hidden>下一题 →</button></div><p class="tiny muted">绿色 &lt;3s · 黄色 3–6s · 选错或 &gt;6s 按失败调度</p>`;
- $('finish').onclick=()=>{if(locked&&question?.failed&&performance.now()<question.unlockAt){notify('请先查看正确答案，2 秒后可结束。');return;}if(s.kind==='stage')abandonStageExam();else endStudy();};
- document.querySelectorAll('.option').forEach(b=>b.onclick=()=>answer(Number(b.dataset.index)));
- if(mode==='spelling'){$('spelling-form').onsubmit=e=>{e.preventDefault();answer($('spelling-answer').value);};$('spelling-answer').focus();}
- $('next').onclick=()=>{notify();show('study');};clock=setInterval(()=>{if(!question||locked)return;if(question.started===null){$('timer').textContent='等待播放';return;}const t=(performance.now()-question.started)/1000,el=$('timer');if(el){el.textContent=t.toFixed(1)+' s';el.className='timer '+(t<3?'green':t<=6?'yellow':'red');}},80);
- if(mode!=='listening')question.started=performance.now();else{document.querySelectorAll('.option').forEach(b=>b.disabled=true);$('skip-listening').hidden=false;}
- const q=question;$('replay-word').onclick=()=>mode==='listening'?requestListeningAudio(q):speakWord(w.word,false,{guard:()=>question===q});
- $('skip-listening').onclick=()=>{const n=clone();n.session.pending.shift();if(save(n)){notify('语音题已跳过，未计入作答或新词配额。');show('study');}};autoReadQuestion();
-}
-function schedule(w,correct,seconds,now,fastLimit=3,slowLimit=6){const fast=correct&&seconds<fastLimit,success=correct&&seconds<=slowLimit;let interval=w.interval;if(success){const reps=w.reps+1;const target=reps<=5?BASE[reps-1]*w.ef:Math.max(1,w.interval*w.ef);interval=fast?target:Math.max(1,w.interval+Math.max(0,target-w.interval)/2);w.reps=reps;w.interval=interval;w.due=now+interval*DAY;w.ef=Math.max(1.3,Number((w.ef+(fast?.1:-.14)).toFixed(2)));}else{w.reps=0;w.interval=0;w.due=now+600000;w.wrongCount++;w.ef=Math.max(1.3,Number((w.ef-.2).toFixed(2)));}return {fast,success};}
-function answer(value){
- if(!question||locked)return;if(db.session?.kind==='stage')return answerStage(value);const q=question,mode=q.mode||'enZh';if(mode==='listening'&&(q.started===null||q.audioFailed))return;let chosen,correct;
- if(mode==='spelling'){if(typeof value!=='string'||!normalizeSpelling(value))return;chosen=value;correct=normalizeSpelling(value)===normalizeSpelling(q.word.word);}
- else{if(!Number.isInteger(value)||!q.options[value])return;chosen=mode==='zhEn'?q.options[value].word:q.options[value].zh;correct=q.options[value].id===q.word.id;}
- const seconds=(performance.now()-q.started)/1000,now=Date.now(),n=clone(),w=n.words.find(w=>w.id===q.word.id),result=schedule(w,correct,seconds,now),record={id:w.id,word:w.word,zh:w.zh,section:w.section,type:q.item.type,mode,round:n.session.round||0,correct,success:result.success,fast:result.fast,seconds,at:now,day:n.session.day,chosen};
- w.history.push(record);n.session.answers.push(record);n.session.pending.shift();n.session.prev=q.options.map(o=>({id:o.id,zh:o.zh}));
- if(q.item.type==='new'){const d=n.days[n.session.day]||(n.days[n.session.day]={newIds:[]});if(!d.newIds.includes(w.id))d.newIds.push(w.id);}
- if(mode==='listening'&&!result.success)n.session.listeningReview={id:w.id,token:String(now)+'-'+n.session.answers.length,remaining:2,notBefore:0,unlockAt:now+2000};
- if(mode==='spelling'&&!correct)n.session.correction={id:w.id,unlockAt:now+2000,seconds};
- if(!save(n))return;locked=true;clearInterval(clock);q.failed=!result.success;q.unlockAt=performance.now()+(q.failed?2000:0);
- if(n.session.listeningReview)return renderListeningReview();
- if(n.session.correction)return renderCorrection();
- document.querySelectorAll('.option').forEach((b,i)=>{b.disabled=true;if(q.options[i].id===q.word.id)b.classList.add('correct');else if(i===value)b.classList.add('incorrect');});
- if(mode==='spelling'){$('spelling-answer').disabled=true;$('submit-spelling').disabled=true;}
- if(mode==='listening'){$('view').querySelector('.word').textContent=w.word;$('view').querySelector('.word').lang='en';}
- const color=result.fast?'green':result.success?'yellow':'red';$('timer').className='timer '+color;$('timer').textContent=seconds.toFixed(2)+' s';const msg=result.fast?'答对了，记忆很敏捷。':result.success?'答对了，再熟悉一点就更好了。':correct?'答对了，但超过 6 秒，按失败复习。':'这次记住，下次就会。';
- $('feedback').className='feedback '+color;$('feedback').innerHTML=`<strong>${msg}</strong><br>正确答案：${esc(mode==='listening'?w.word+' · '+w.zh:mode==='enZh'?w.zh:w.word)} · ${result.success?`${Number(w.interval.toFixed(2))} 天后复习`:'10 分钟后复习'}${result.success&&(n.session.round||0)>0?'<br><strong>已回炉 · 本次 session 不再出现</strong>':''}${q.failed?'<br><span id="wait" class="tiny">请查看正确答案，2 秒后可继续。</span>':''}`;
- $('next').hidden=false;$('next').textContent=n.session.pending.length?'下一题 →':(n.session.round||0)<2&&relearnCandidates(n.session).length?'进入回炉重考 →':'完成，查看日报 →';$('next').disabled=q.failed;$('finish').disabled=q.failed;
- if(q.failed){feedbackTimer=setTimeout(()=>{if(screen==='study'&&locked){$('next').disabled=false;$('finish').disabled=false;$('wait').textContent='可以继续了。';}},2000);speakWord(w.word);}
-}
-function finishSession(){if(db.session?.kind==='stage')return finishStageExam();clearInterval(clock);clearTimeout(feedbackTimer);const n=clone(),s=n.session;if(!s)return show('home');const report={id:s.id,day:s.day,startedAt:s.startedAt,endedAt:Date.now(),answers:s.answers,relearn:relearnStats(s.answers),dayModes:modeStatistics(n.words.flatMap(w=>w.history).filter(a=>a.day===s.day)),dayNew:(n.days[s.day]?.newIds||[]).length,limit:n.settings.limit,totalLearned:n.words.filter(w=>w.history.length).length,totalWords:n.words.length,highRisk:riskWords(n.words)};n.reports.push(report);n.session=null;if(save(n)){notify();reportTab='word';show('report');}}
-function riskWords(words){return words.map(w=>({word:w.word,zh:w.zh,section:w.section,wrongCount:w.wrongCount,avg:w.history.length?w.history.reduce((a,h)=>a+h.seconds,0)/w.history.length:0})).filter(w=>w.wrongCount>=2||w.avg>5).sort((a,b)=>b.wrongCount-a.wrongCount||b.avg-a.avg).slice(0,5);}
-function metrics(r){const a=r.answers,n=a.length;return {n,news:a.filter(x=>x.type==='new').length,reviews:a.filter(x=>x.type==='review').length,accuracy:n?a.filter(x=>x.correct).length/n*100:0,avg:n?a.reduce((s,x)=>s+x.seconds,0)/n:0,fast:n?a.filter(x=>x.fast).length/n*100:0,errors:a.filter(x=>!x.success)};}
-function reportText(r){const m=metrics(r),groups=Object.groupBy?Object.groupBy(mergedReportErrors(r),x=>x.section):mergedReportErrors(r).reduce((o,x)=>((o[x.section]??=[]).push(x),o),{});return [`VCE 数学词汇日报 · Day ${r.day}`,...(stageWarning(r)?[stageWarning(r)]:[]),new Date(r.endedAt).toLocaleString(),r.stageOnly?'阶段测日报':'本次 session（非整日汇总）',...stageResultsForReport(r).map(stageResultText),`新学 ${m.news} / 复习 ${m.reviews}`,`回炉轮：${relearnStats(r.answers).attempted}词重考，${relearnStats(r.answers).passed}词通过`,`正确率 ${m.accuracy.toFixed(1)}%（按作答正确计）`,`平均反应时 ${m.avg.toFixed(2)} 秒`,`3秒达标率 ${m.fast.toFixed(1)}%（答对且 <3 秒 / 全部作答）`,`Day 进度 ${r.dayNew}/${r.limit}；累计学习 ${r.totalLearned}/${r.totalWords}`, ...reportModeText(r),'错词（含超时）：',...Object.entries(groups).map(([s,ws])=>`${s}: ${ws.map(w=>`${w.word} → ${w.zh}${w.source==='stage'?'（阶段测）':w.correct?'（超时）':''}`).join('；')}`),...(!mergedReportErrors(r).length?['无']:[]),'高危词 Top 5（累计）：',...r.highRisk.map(w=>`${w.word} [${w.section}] · 错 ${w.wrongCount} 次 · 均时 ${w.avg.toFixed(2)}s`),...(!r.highRisk.length?['无']:[])].join('\n');}
-function renderWordReport(){const r=db.reports.at(-1);if(!r){$('view').innerHTML='<div class="eyebrow">SESSION REPORT</div><h1>你的进步，值得记录。</h1><p class="subtitle">完成一次训练后，这里会生成日报。</p><button id="go-home" class="primary">开始学习</button>';$('go-home').onclick=()=>show('home');return;}const m=metrics(r),groups=mergedReportErrors(r).reduce((o,w)=>((o[w.section]??=[]).push(w),o),{}),stats=[['本次新学',m.news+'','个词'],['本次复习',m.reviews+'','个词'],['正确率',m.accuracy.toFixed(1)+'%','按作答正确计，含超时答对'],['平均反应时',m.avg.toFixed(2)+'s','全部已作答题目'],['3秒达标率',m.fast.toFixed(1)+'%','答对且 <3 秒 / 全部作答'],['Day '+r.day+' 进度',r.dayNew+'/'+r.limit,'当日累计新词']];
+ $('view').innerHTML=`<div class="card" role="dialog" aria-modal="true" aria-labelledby="relearn-title"><div class="eyebrow">LEARNING STEPS / ${nextRound} OF 2</div><h1 id="relearn-title">回炉重考</h1><p class="subtitle">${nextRound===1?'正轮已结束':'上一轮回炉已结束'}，${ids.length} 个错词需要再…4587 tokens truncated…w.section]??=[]).push(w),o),{}),stats=[['本次新学',m.news+'','个词'],['本次复习',m.reviews+'','个词'],['正确率',m.accuracy.toFixed(1)+'%','按作答正确计，含超时答对'],['平均反应时',m.avg.toFixed(2)+'s','全部已作答题目'],['3秒达标率',m.fast.toFixed(1)+'%','答对且 <3 秒 / 全部作答'],['Day '+r.day+' 进度',r.dayNew+'/'+r.limit,'当日累计新词']];
  $('view').innerHTML=`<div id="stage-warning" class="notice" role="status">${esc(stageWarning(r))}</div><div class="eyebrow">SESSION REPORT / DAY ${r.day}</div><h1>每一次练习，都在积累。</h1><p class="subtitle">${esc(new Date(r.endedAt).toLocaleString())} · ${r.stageOnly?'阶段测日报':'本次 session 日报'}${m.n?'':(r.stageOnly?'':' · 本次未作答')}</p>${renderStageSummaries(r)}<p id="relearn-summary" class="pill">回炉轮：${relearnStats(r.answers).attempted}词重考，${relearnStats(r.answers).passed}词通过</p><div class="stats report-stats">${stats.map(([l,v,h])=>`<div class="stat"><span class="label">${esc(l)}</span><span class="value">${esc(v)}</span><span class="tiny muted">${esc(h)}</span></div>`).join('')}</div>${renderModeReport(r)}<div class="card"><div class="row"><h3>Day ${r.day} 新词进度</h3><span class="tiny muted">${r.dayNew} / ${r.limit}</span></div><div class="progress"><span style="width:${Math.min(100,r.dayNew/r.limit*100)}%"></span></div><p class="help">累计接触 ${r.totalLearned} / ${r.totalWords} 个词。Day 手动推进；到期时间按真实时间计算。</p></div><div class="report-grid"><div class="card"><h2>错词 · 按 section</h2><p class="help">含选错与超过 6 秒的作答。</p>${Object.entries(groups).map(([s,ws])=>`<h3>${esc(s)}</h3><ul class="word-list">${ws.map(w=>`<li>${esc(w.word)}<small>${esc(w.zh)} · ${w.seconds.toFixed(2)}s${w.source==='stage'?' · 阶段测':w.correct?' · 超时':''}</small></li>`).join('')}</ul>`).join('')||'<div class="empty">本次没有错词，继续保持。</div>'}</div><div class="card"><h2>高危词 Top 5</h2><p class="help">累计错误 ≥2 次或历史平均反应时 &gt;5 秒。</p><ul class="word-list">${r.highRisk.map(w=>`<li>${esc(w.word)} <span class="pill">${esc(w.section)}</span><small>${esc(w.zh)} · 错 ${w.wrongCount} 次 · 均时 ${w.avg.toFixed(2)}s</small></li>`).join('')||'<li class="empty">暂无高危词。</li>'}</ul></div></div><div class="actions"><button id="copy" class="primary">复制日报为纯文本</button><button id="backup">导出 JSON 备份</button><button id="home">继续学习</button><button id="next-day">进入下一 Day</button></div><textarea id="copy-fallback" aria-label="日报纯文本（可手动复制）" hidden readonly style="width:100%;height:220px;margin-top:20px"></textarea>`;
  $('copy').onclick=async()=>{try{await navigator.clipboard.writeText(reportText(r));notify('日报已复制。');}catch{const t=$('copy-fallback');t.hidden=false;t.value=reportText(r);t.select();notify('浏览器未允许自动复制，已选中日报文本，请手动复制。');}};$('backup').onclick=exportBackup;$('home').onclick=()=>show('home');$('next-day').onclick=()=>{const n=clone();n.settings.day=Math.max(n.settings.day,r.day)+1;if(save(n)){notify('已进入 Day '+n.settings.day+'。');show('home');}};
 }
@@ -1065,10 +1105,11 @@ function migrateBuiltinVocabulary(d){
  return changed;
 }
 function validateStored(d){if(d?.version!==1||!Array.isArray(d.words)||!d.words.length||!d.settings||!Number.isInteger(d.settings.limit)||d.settings.limit<1||!Number.isInteger(d.settings.day)||d.settings.day<1||!d.days||!Array.isArray(d.reports))throw Error('本地数据结构不完整');const ids=new Set();for(const w of d.words){if(typeof w.id!=='string'||ids.has(w.id)||!['word','zh','section'].every(k=>typeof w[k]==='string'&&w[k].trim())||!Array.isArray(w.history)||!['ef','interval','reps','due','wrongCount'].every(k=>Number.isFinite(w[k])&&w[k]>=0))throw Error('本地词库损坏');ids.add(w.id);}if(d.stageHistory!==undefined&&!Array.isArray(d.stageHistory))throw Error('阶段测历史损坏');if(d.stageDays!==undefined&&(!d.stageDays||typeof d.stageDays!=='object'||Array.isArray(d.stageDays)))throw Error('阶段测日期记录损坏');if(d.session&&((d.session.round!==undefined&&(!Number.isInteger(d.session.round)||d.session.round<0||d.session.round>2))||!Array.isArray(d.session.pending)||!Array.isArray(d.session.answers)||!Array.isArray(d.session.prev)||d.session.pending.some(x=>!ids.has(x.id))||(d.session.correction&&(!ids.has(d.session.correction.id)||!Number.isFinite(d.session.correction.unlockAt)||!Number.isFinite(d.session.correction.seconds)))||(d.session.listeningReview&&(!ids.has(d.session.listeningReview.id)||![0,1,2].includes(d.session.listeningReview.remaining)||!Number.isFinite(d.session.listeningReview.unlockAt)||!Number.isFinite(d.session.listeningReview.notBefore)||typeof d.session.listeningReview.token!=='string'))))throw Error('本地 session 损坏');return d;}
-async function init(){setupSpeech();for(const name of ['home','report','settings'])$('nav-'+name).onclick=()=>show(name);$('nav-sentences').onclick=()=>show(sdb?.session?'sentenceStudy':'sentences');let raw;try{raw=localStorage.getItem(KEY);}catch{notify('浏览器禁止访问 localStorage，请允许本地存储后重试。');renderImport();return;}if(raw){try{db=validateStored(JSON.parse(raw));db.stageHistory??=[];db.stageDays??={};db.settings={autoRead:true,speechRate:1,speechVoiceId:'',...db.settings};db.settings.modeWeights={...configuredModeWeights()};const retiredChanged=migrateRetiredWords(db),vocabularyChanged=migrateBuiltinVocabulary(db);if(retiredChanged||vocabularyChanged)save();show(db.session?'study':sdb?.session?'sentenceStudy':'home');}catch(e){notify(e.message+'。未自动覆盖原始数据；请先下载保留，再重新导入。');$('view').innerHTML='<h1>本地数据无法读取</h1><button id="raw">下载原始数据</button> <button id="reset">恢复内置词库</button> <button id="custom-csv">导入自定义 CSV</button>';$('raw').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([raw],{type:'application/json'}));a.download='vocab-trainer-recovery.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);};$('reset').onclick=()=>initializeBuiltin(true);$('custom-csv').onclick=importCustomCSV;}}else initializeBuiltin();}
+async function init(){setupSpeech();for(const name of ['home','report','settings'])$('nav-'+name).onclick=()=>show(name);$('nav-sentences').onclick=()=>show(sdb?.session?'sentenceStudy':'sentences');$('nav-eal').onclick=()=>show(ealDb?.session?'ealStudy':'ealHome');let raw;try{raw=localStorage.getItem(KEY);}catch{notify('浏览器禁止访问 localStorage，请允许本地存储后重试。');renderImport();return;}if(raw){try{db=validateStored(JSON.parse(raw));db.stageHistory??=[];db.stageDays??={};db.settings={autoRead:true,speechRate:1,speechVoiceId:'',...db.settings};db.settings.modeWeights={...configuredModeWeights()};const retiredChanged=migrateRetiredWords(db),vocabularyChanged=migrateBuiltinVocabulary(db);if(retiredChanged||vocabularyChanged)save();show(db.session?'study':sdb?.session?'sentenceStudy':'home');}catch(e){notify(e.message+'。未自动覆盖原始数据；请先下载保留，再重新导入。');$('view').innerHTML='<h1>本地数据无法读取</h1><button id="raw">下载原始数据</button> <button id="reset">恢复内置词库</button> <button id="custom-csv">导入自定义 CSV</button>';$('raw').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([raw],{type:'application/json'}));a.download='vocab-trainer-recovery.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);};$('reset').onclick=()=>initializeBuiltin(true);$('custom-csv').onclick=importCustomCSV;}}else initializeBuiltin();}
 document.addEventListener('keydown',e=>{if(screen==='sentenceStudy'&&!e.repeat&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!e.isComposing&&!e.target.matches('input,textarea,select')){if(['1','2','3'].includes(e.key)){e.preventDefault();answerSentence(Number(e.key)-1);}else if(e.key==='Enter'&&sentenceLocked&&$('sentence-next')&&!$('sentence-next').disabled){e.preventDefault();$('sentence-next').click();}return;}if(screen!=='study'||e.repeat||e.ctrlKey||e.metaKey||e.altKey||e.isComposing||e.target.matches('input,textarea,select'))return;if(['1','2','3'].includes(e.key)){e.preventDefault();answer(Number(e.key)-1);}else if(e.key==='Enter'&&locked&&$('next')&&!$('next').disabled){e.preventDefault();$('next').click();}});
 initSentenceData();
-init().then(()=>{if(sdb?.session&&!db?.session&&screen!=='sentenceStudy')show('sentenceStudy');});
+initEalData();
+init().then(()=>{if(ealDb?.session&&!db?.session&&!sdb?.session&&screen!=='ealStudy')show('ealStudy');else if(sdb?.session&&!db?.session&&screen!=='sentenceStudy')show('sentenceStudy');});
 </script>
 </body>
 </html>
