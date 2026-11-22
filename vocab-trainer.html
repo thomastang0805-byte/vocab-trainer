@@ -998,8 +998,8 @@ function relearnStats(answers){
 }
 function relearnCandidates(s){
  const passed=new Set(s.answers.filter(a=>(a.round||0)>0&&a.success).map(a=>a.id));
-Warning: truncated output (original token count: 12706)
-Total output lines: 264
+
+
 
  return [...new Set(s.answers.filter(a=>(a.round||0)===(s.round||0)&&!a.success).map(a=>a.id))]
   .filter(id=>!passed.has(id)&&db.words.some(w=>w.id===id));
