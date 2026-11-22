@@ -898,9 +898,6 @@ function stageWarning(r){
 }
 function mergedReportErrors(r){return [...metrics(r).errors,...stageResultsForReport(r).flatMap(e=>e.answers.filter(a=>!a.correct).map(a=>({...a,source:'stage'})))];}
 function stageResultText(e){return `${e.date} · Day ${e.day} · 阶段测 ${e.score}分（${e.correct}/${e.total}） · 正确率 ${e.accuracy.toFixed(1)}% · 3秒达标率 ${e.fastRate.toFixed(1)}%`;}
-Warning: truncated output (original token count: 19769)
-Total output lines: 312
-
 function renderStageSummaries(r){const results=stageResultsForReport(r);return results.length?`<div class="card" style="margin-bottom:20px"><h2>今日阶段测</h2>${results.map(e=>`<p>${esc(stageResultText(e))}</p>`).join('')}<p class="help">独立测评，未修改词汇调度或日常新词配额。</p></div>`:'';}
 function renderStageHistory(){return `<div class="card" style="margin-top:20px"><h2>阶段测历史</h2><ul id="stage-history" class="word-list">${[...(db.stageHistory||[])].reverse().map(e=>`<li>${esc(stageResultText(e))}</li>`).join('')||'<li class="empty">暂无阶段测记录。</li>'}</ul></div>`;}
 // EAL owns an isolated store, scheduler, reports, settings and sessions.
@@ -909,7 +906,44 @@ function createEalSentence(row){return {id:JSON.stringify([row.en,row.sec]),en:r
 function freshEal(){return {version:1,settings:{limit:12,day:1,stageExamDays:[7,14],modeWeights:{enZh:34,zhEn:33,spelling:33}},words:EAL_VOCAB.map(createEalWord),sentences:EAL_SENTENCES.map(createEalSentence),days:{},sentenceDays:{},session:null,reports:[],stageDays:{}};}
 function saveEal(next=ealDb){try{localStorage.setItem(EAL_KEY,JSON.stringify(next));ealDb=next;return true;}catch{notify('EAL数据无法保存，请检查浏览器存储。其他模块数据未改动。');return false;}}
 function cloneEal(){return JSON.parse(JSON.stringify(ealDb));}
-function initEalData(){try{const raw=localStorage.getItem(EAL_KEY);if(!raw){ealDb=freshEal();saveEal(ealDb);return;}const d=JSON.parse(raw);if(d?.version!==1||!Array.isArray(d.words)||!Array.isArray(d.sentences)||!d.settings||!d.days||!Array.isArray(d.reports))throw Error('EAL数据结构不完整');d.sentenceDays??={};d.stageDays??={};d.settings={limit:12,day:1,stageExamDays:[7,14],modeWeights:{enZh:34,zhEn:33,spelling:33},...d.settings};d.settings.modeWeights={enZh:34,zhEn:33,spelling:33,...d.settings.modeWeights};let changed=false;const wi=new Set(d.words.map(x=>x.id)),si=new Set(d.sentences.map(x=>x.id));for(const row of EAL_VOCAB){const x=createEalWord(row);if(!wi.has(x.id)){d.words.push(x);wi.add(x.id);changed=true;}}for(const row of EAL_SENTENCES){const x=createEalSentence(row);if(!si.has(x.id)){d.sentences.push(x);si.add(x.id);changed=true;}}ealDb=d;if(changed)saveEal(d);}catch(error){ealDb=null;console.error('EAL data unavailable',error);}}
+function initEalData(){
+ const defaults=freshEal();
+ try{
+  const raw=localStorage.getItem(EAL_KEY);
+  if(!raw){ealDb=defaults;saveEal(ealDb);return;}
+  const parsed=JSON.parse(raw),d=parsed&&typeof parsed==='object'&&!Array.isArray(parsed)?parsed:{};
+  let changed=false;
+  if(!Array.isArray(d.words)){d.words=[];changed=true;}
+  if(!Array.isArray(d.sentences)){d.sentences=[];changed=true;}
+  const oldWordCount=d.words.length,oldSentenceCount=d.sentences.length;
+  d.words=d.words.filter(x=>x&&typeof x==='object'&&typeof x.word==='string'&&typeof x.zh==='string'&&typeof (x.section||x.sec)==='string').map(x=>{const base=createEalWord({word:x.word,zh:x.zh,sec:x.sec||x.section});return {...base,...x,id:x.id||base.id,section:x.section||x.sec,history:Array.isArray(x.history)?x.history:[]};});
+  d.sentences=d.sentences.filter(x=>x&&typeof x==='object'&&typeof x.en==='string'&&typeof x.zh==='string'&&typeof (x.section||x.sec)==='string').map(x=>{const base=createEalSentence({en:x.en,zh:x.zh,sec:x.sec||x.section});return {...base,...x,id:x.id||base.id,section:x.section||x.sec,history:Array.isArray(x.history)?x.history:[]};});
+  if(oldWordCount!==d.words.length||oldSentenceCount!==d.sentences.length)changed=true;
+  if(!d.settings||typeof d.settings!=='object'||Array.isArray(d.settings)){d.settings={};changed=true;}
+  if(!d.days||typeof d.days!=='object'||Array.isArray(d.days)){d.days={};changed=true;}
+  if(!d.sentenceDays||typeof d.sentenceDays!=='object'||Array.isArray(d.sentenceDays)){d.sentenceDays={};changed=true;}
+  if(!Array.isArray(d.reports)){d.reports=[];changed=true;}
+  if(!d.stageDays||typeof d.stageDays!=='object'||Array.isArray(d.stageDays)){d.stageDays={};changed=true;}
+  if(!Object.hasOwn(d,'session')){d.session=null;changed=true;}
+  if(d.session&&(!Array.isArray(d.session.pending)||!Array.isArray(d.session.answers))) {d.session=null;changed=true;}
+  d.version=1;
+  d.settings={...defaults.settings,...d.settings};
+  if(!Number.isInteger(d.settings.limit)||d.settings.limit<1){d.settings.limit=12;changed=true;}
+  if(!Number.isInteger(d.settings.day)||d.settings.day<1){d.settings.day=1;changed=true;}
+  if(!Array.isArray(d.settings.stageExamDays)){d.settings.stageExamDays=[7,14];changed=true;}
+  const weights=d.settings.modeWeights&&typeof d.settings.modeWeights==='object'&&!Array.isArray(d.settings.modeWeights)?d.settings.modeWeights:{};
+  d.settings.modeWeights={...defaults.settings.modeWeights,...weights};
+  const wordIds=new Set(d.words.filter(x=>x&&typeof x.id==='string').map(x=>x.id));
+  const sentenceIds=new Set(d.sentences.filter(x=>x&&typeof x.id==='string').map(x=>x.id));
+  for(const row of EAL_VOCAB){const x=createEalWord(row);if(!wordIds.has(x.id)){d.words.push(x);wordIds.add(x.id);changed=true;}}
+  for(const row of EAL_SENTENCES){const x=createEalSentence(row);if(!sentenceIds.has(x.id)){d.sentences.push(x);sentenceIds.add(x.id);changed=true;}}
+  ealDb=d;
+  if(changed)saveEal(d);
+ }catch(error){
+  ealDb=defaults;
+  console.error('EAL data unavailable; using in-memory defaults',error);
+ }
+}
 function ealDayInfo(day=ealDb.settings.day){return ealDb.days[day]||{newIds:[]};}
 function ealDue(now=Date.now(),kind='word'){return (kind==='sentence'?ealDb.sentences:ealDb.words).filter(x=>x.history.length&&(x.wrongCount>=2||x.due<=now)).sort((a,b)=>(b.wrongCount>=2)-(a.wrongCount>=2)||a.due-b.due);}
 function ealModes(){const m=ealDb.settings.modeWeights,total=['enZh','zhEn','spelling'].reduce((a,k)=>a+(m[k]||0),0)||100,r=Math.random()*total;let sum=0;for(const k of ['enZh','zhEn','spelling']){sum+=m[k]||0;if(r<sum)return k;}return 'spelling';}
@@ -964,6 +998,9 @@ function relearnStats(answers){
 }
 function relearnCandidates(s){
  const passed=new Set(s.answers.filter(a=>(a.round||0)>0&&a.success).map(a=>a.id));
+Warning: truncated output (original token count: 12706)
+Total output lines: 264
+
  return [...new Set(s.answers.filter(a=>(a.round||0)===(s.round||0)&&!a.success).map(a=>a.id))]
   .filter(id=>!passed.has(id)&&db.words.some(w=>w.id===id));
 }
@@ -1012,7 +1049,57 @@ function startListeningReview(){
   onEachEnd:()=>{if(db.session?.listeningReview?.token!==token)return;const n=clone();n.session.listeningReview.remaining--;n.session.listeningReview.notBefore=Date.now()+1000;if(save(n))listeningStatus('剩余重读 '+n.session.listeningReview.remaining+' 遍。');},
   onEnd:()=>{listeningReviewRequest=null;finishListeningReview();},onError:failed
  });
- if(!accepted)faile…2769 tokens truncated…失败复习。':'这次记住，下次就会。';
+ if(!accepted)failed();
+}
+function renderListeningReview(){
+ const r=db.session.listeningReview,w=db.words.find(w=>w.id===r.id);locked=true;question=null;
+ $('view').innerHTML=`<div class="eyebrow">听音订正</div><h1>再听两遍，记住这个词。</h1><div class="card"><h2 lang="en">${esc(w.word)}</h2><p>${esc(w.zh)}</p><p id="listening-status" role="status">等待重读，两遍间隔 1 秒，完成后自动继续。</p><div class="actions"><button id="retry-listening-review" hidden>重试朗读</button><button id="continue-listening-review" hidden>继续学习（重读不可用）</button></div></div>`;
+ $('retry-listening-review').onclick=()=>{ $('retry-listening-review').hidden=true;$('continue-listening-review').hidden=true;startListeningReview();};
+ $('continue-listening-review').onclick=()=>{const n=clone();n.session.listeningReview=null;if(save(n)){listeningReviewRequest=null;show('study');}};
+ if(r.remaining===1&&r.notBefore>Date.now()){feedbackTimer=setTimeout(startListeningReview,r.notBefore-Date.now());}else startListeningReview();
+}
+function renderCorrection(){
+ const c=db.session.correction,w=db.words.find(w=>w.id===c.id);clearInterval(clock);clearTimeout(feedbackTimer);locked=true;question=null;
+ $('view').innerHTML=`<div class="eyebrow">SPELLING CORRECTION</div><h1>再写一遍，记住这个词。</h1><div class="card"><span class="pill">${esc(w.section)}</span><p>${esc(w.zh)}</p><h2 lang="en">${esc(w.word)}</h2><p class="red">拼写不正确。请抄写上面的正确拼写才能继续。</p><p class="help">本题 ${c.seconds.toFixed(2)} 秒 · 10 分钟后复习。订正不会增加答题次数或改变本次调度。</p><button id="replay-word" type="button" class="small">🔊 再听一遍</button><form id="correction-form"><label>抄写正确拼写<input id="copy-spelling" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" required></label><button id="confirm-copy" class="primary" disabled>确认订正并继续 →</button><p id="copy-hint" class="help" aria-live="polite">请查看正确答案，2 秒后可确认。</p></form></div>`;
+ $('replay-word').onclick=()=>speakWord(w.word,false);
+ $('correction-form').onsubmit=e=>{e.preventDefault();if(Date.now()<c.unlockAt)return;if(normalizeSpelling($('copy-spelling').value)!==normalizeSpelling(w.word)){$('copy-hint').textContent='还不正确，请按上方的正确拼写重新输入。';return;}const n=clone();n.session.correction=null;if(save(n)){notify();show('study');}};
+ const enable=()=>{$('confirm-copy').disabled=false;$('copy-hint').textContent='输入正确拼写后，即可继续。';};
+ const wait=Math.max(0,c.unlockAt-Date.now());if(wait)feedbackTimer=setTimeout(enable,wait);else enable();
+ $('copy-spelling').focus();speakWord(w.word);
+}
+function renderQuestion(){
+ let s=db.session;if(!s)return show('home');if(s.listeningReview)return renderListeningReview();if(s.correction)return renderCorrection();if(!s.pending.length)return s.kind==='stage'?finishStageExam():advanceSession();
+ if(!Object.hasOwn(MODE_LABELS,s.pending[0].mode)){const n=clone();n.session.pending[0].mode=chooseQuestionMode(s.day);if(!save(n))return;s=db.session;}
+ const item=s.pending[0],mode=item.mode,w=db.words.find(w=>w.id===item.id),options=mode==='spelling'?[]:makeOptions(w,s.kind==='stage'?[]:s.prev);
+ if(!options){$('view').innerHTML=`<h1>本题暂无可用干扰项</h1><p class="subtitle">${esc(w.word)} 所在 section 无法同时满足不同释义、不与上一题选项重复、英文不互为子串的规则。请结束 session 并检查词库。</p><button id="finish" class="primary">结束并查看日报</button>`;$('finish').onclick=s.kind==='stage'?abandonStageExam:finishSession;return;}
+ const count=s.answers.filter(a=>(a.round||0)===(s.round||0)).length,total=count+s.pending.length;question={word:w,item,mode,options,started:mode==='listening'?null:performance.now()};locked=false;
+ const instruction=mode==='enZh'?'选择正确的中文释义':mode==='zhEn'?'选择正确的英文单词':mode==='listening'?'听单词，选择正确的中文释义':'请输入对应的英文单词（忽略大小写和首尾空格）';
+ $('view').innerHTML=`<div class="row"><div><div class="eyebrow">FOCUS SESSION · ${MODE_LABELS[mode]}</div><h2 style="margin:8px 0">${s.kind==='stage'?'阶段测 · '+total+' 词':(s.round||0)>0?'回炉重考 · 第 '+s.round+' / 2 轮':item.forced?'高危词强化':item.type==='review'?'到期复习':'学习新词'}</h2></div><button id="finish" class="small quiet">${s.kind==='stage'?'退出阶段测':(s.round||0)>0?'结束回炉':'结束正轮'}</button></div><div class="row tiny muted" style="margin:16px 0 8px"><span>已完成 ${count} / ${total}</span><span>${s.kind==='stage'?'独立计分 · 不影响调度':(s.round||0)>0?'答对且不超时 → 已回炉':'先复习 · 后新词'}</span></div><div class="progress" role="progressbar" aria-label="训练进度" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${count}"><span style="width:${count/total*100}%"></span></div><div class="card question"><div class="row"><span class="pill">${mode==='listening'?'听音':esc(w.section)}</span><span id="timer" class="timer green" aria-label="答题计时">0.0 s</span></div><div class="word" lang="${mode==='enZh'?'en':'zh-CN'}">${mode==='listening'?'🔊':esc(mode==='enZh'?w.word:w.zh)}</div><span class="tiny muted">${instruction}</span><div class="actions" style="justify-content:center;margin-top:16px"><button id="replay-word" class="small" type="button">🔊 再听一遍</button></div></div>${mode==='spelling'?'<form id="spelling-form" class="card" style="margin-top:20px"><label>英文拼写<input id="spelling-answer" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" required></label><button id="submit-spelling" class="primary">提交答案</button></form>':`<div class="options">${options.map((o,i)=>`<button class="option" data-index="${i}"><span class="key">${i+1}</span><span>${esc(mode==='zhEn'?o.word:o.zh)}</span></button>`).join('')}</div>`}<p id="listening-status" role="status" ${mode!=='listening'?'hidden':''}>${mode==='listening'?'等待语音开始播放后计时…':''}</p><button id="skip-listening" class="small" hidden>跳过此题（不计作答）</button><div id="feedback" aria-live="polite"></div><div class="actions"><button id="next" class="primary" hidden>下一题 →</button></div><p class="tiny muted">${mode==='spelling'?'拼写：绿色 &lt;8s · 黄色 8–15s · 选错或 &gt;15s 按失败调度':'选择题：绿色 &lt;3s · 黄色 3–6s · 选错或 &gt;6s 按失败调度'}</p>`;
+ $('finish').onclick=()=>{if(locked&&question?.failed&&performance.now()<question.unlockAt){notify('请先查看正确答案，2 秒后可结束。');return;}if(s.kind==='stage')abandonStageExam();else endStudy();};
+ document.querySelectorAll('.option').forEach(b=>b.onclick=()=>answer(Number(b.dataset.index)));
+ if(mode==='spelling'){$('spelling-form').onsubmit=e=>{e.preventDefault();answer($('spelling-answer').value);};$('spelling-answer').focus();}
+ $('next').onclick=()=>{notify();show('study');};clock=setInterval(()=>{if(!question||locked)return;if(question.started===null){$('timer').textContent='等待播放';return;}const t=(performance.now()-question.started)/1000,el=$('timer');if(el){el.textContent=t.toFixed(1)+' s';el.className='timer '+(mode==='spelling'?(t<8?'green':t<=15?'yellow':'red'):(t<3?'green':t<=6?'yellow':'red'));}},80);
+ if(mode!=='listening')question.started=performance.now();else{document.querySelectorAll('.option').forEach(b=>b.disabled=true);$('skip-listening').hidden=false;}
+ const q=question;$('replay-word').onclick=()=>mode==='listening'?requestListeningAudio(q):speakWord(w.word,false,{guard:()=>question===q});
+ $('skip-listening').onclick=()=>{const n=clone();n.session.pending.shift();if(save(n)){notify('语音题已跳过，未计入作答或新词配额。');show('study');}};autoReadQuestion();
+}
+function schedule(w,correct,seconds,now,fastLimit=3,slowLimit=6){const fast=correct&&seconds<fastLimit,success=correct&&seconds<=slowLimit;let interval=w.interval;if(success){const reps=w.reps+1;const target=reps<=5?BASE[reps-1]*w.ef:Math.max(1,w.interval*w.ef);interval=fast?target:Math.max(1,w.interval+Math.max(0,target-w.interval)/2);w.reps=reps;w.interval=interval;w.due=now+interval*DAY;w.ef=Math.max(1.3,Number((w.ef+(fast?.1:-.14)).toFixed(2)));}else{w.reps=0;w.interval=0;w.due=now+600000;w.wrongCount++;w.ef=Math.max(1.3,Number((w.ef-.2).toFixed(2)));}return {fast,success};}
+function answer(value){
+ if(!question||locked)return;if(db.session?.kind==='stage')return answerStage(value);const q=question,mode=q.mode||'enZh';if(mode==='listening'&&(q.started===null||q.audioFailed))return;let chosen,correct;
+ if(mode==='spelling'){if(typeof value!=='string'||!normalizeSpelling(value))return;chosen=value;correct=normalizeSpelling(value)===normalizeSpelling(q.word.word);}
+ else{if(!Number.isInteger(value)||!q.options[value])return;chosen=mode==='zhEn'?q.options[value].word:q.options[value].zh;correct=q.options[value].id===q.word.id;}
+ const seconds=(performance.now()-q.started)/1000,now=Date.now(),n=clone(),w=n.words.find(w=>w.id===q.word.id),result=schedule(w,correct,seconds,now,mode==='spelling'?8:3,mode==='spelling'?15:6),record={id:w.id,word:w.word,zh:w.zh,section:w.section,type:q.item.type,mode,round:n.session.round||0,correct,success:result.success,fast:result.fast,fast3:correct&&seconds<3,seconds,at:now,day:n.session.day,chosen};
+ w.history.push(record);n.session.answers.push(record);n.session.pending.shift();n.session.prev=q.options.map(o=>({id:o.id,zh:o.zh}));
+ if(q.item.type==='new'){const d=n.days[n.session.day]||(n.days[n.session.day]={newIds:[]});if(!d.newIds.includes(w.id))d.newIds.push(w.id);}
+ if(mode==='listening'&&!result.success)n.session.listeningReview={id:w.id,token:String(now)+'-'+n.session.answers.length,remaining:2,notBefore:0,unlockAt:now+2000};
+ if(mode==='spelling'&&!correct)n.session.correction={id:w.id,unlockAt:now+2000,seconds};
+ if(!save(n))return;locked=true;clearInterval(clock);q.failed=!result.success;q.unlockAt=performance.now()+(q.failed?2000:0);
+ if(n.session.listeningReview)return renderListeningReview();
+ if(n.session.correction)return renderCorrection();
+ document.querySelectorAll('.option').forEach((b,i)=>{b.disabled=true;if(q.options[i].id===q.word.id)b.classList.add('correct');else if(i===value)b.classList.add('incorrect');});
+ if(mode==='spelling'){$('spelling-answer').disabled=true;$('submit-spelling').disabled=true;}
+ if(mode==='listening'){$('view').querySelector('.word').textContent=w.word;$('view').querySelector('.word').lang='en';}
+ const color=result.fast?'green':result.success?'yellow':'red';$('timer').className='timer '+color;$('timer').textContent=seconds.toFixed(2)+' s';const msg=result.fast?'答对了，记忆很敏捷。':result.success?'答对了，再熟悉一点就更好了。':correct?mode==='spelling'?'答对了，但超过 15 秒，按失败复习。':'答对了，但超过 6 秒，按失败复习。':'这次记住，下次就会。';
  $('feedback').className='feedback '+color;$('feedback').innerHTML=`<strong>${msg}</strong><br>正确答案：${esc(mode==='listening'?w.word+' · '+w.zh:mode==='enZh'?w.zh:w.word)} · ${result.success?`${Number(w.interval.toFixed(2))} 天后复习`:'10 分钟后复习'}${result.success&&(n.session.round||0)>0?'<br><strong>已回炉 · 本次 session 不再出现</strong>':''}${q.failed?'<br><span id="wait" class="tiny">请查看正确答案，2 秒后可继续。</span>':''}`;
  $('next').hidden=false;$('next').textContent=n.session.pending.length?'下一题 →':(n.session.round||0)<2&&relearnCandidates(n.session).length?'进入回炉重考 →':'完成，查看日报 →';$('next').disabled=q.failed;$('finish').disabled=q.failed;
  if(q.failed){feedbackTimer=setTimeout(()=>{if(screen==='study'&&locked){$('next').disabled=false;$('finish').disabled=false;$('wait').textContent='可以继续了。';}},2000);speakWord(w.word);}
@@ -1034,35 +1121,7 @@ function validateSentenceData(d){
  const ids=new Set();
  if(d.version!==1||!Number.isInteger(d.settings?.limit)||d.settings.limit<1||d.settings.limit>10000||!Array.isArray(d.sentences)||!d.sentences.length||!d.days||!Array.isArray(d.reports))throw Error('句子数据结构不完整');
  for(const s of d.sentences){if(ids.has(s.id)||typeof s.id!=='string'||!['en','zh','section'].every(k=>typeof s[k]==='string'&&s[k].trim())||!Array.isArray(s.history)||!['ef','interval','reps','due','wrongCount'].every(k=>Number.isFinite(s[k])&&s[k]>=0))throw Error('句子记录损坏');ids.add(s.id);}
- if(d.session&&(!Array.isArray(d.session.pending)||!Array.isArray(d.session.answers)||!Number.isInteger(d.session.round)||d.session.round<0||d.session.round>2||d.session.pending.some(x=>!ids.has(x.id))))throw Error('句子训练状态损坏');
- return d;
-}
-function migrateSentenceMeanings(d){
- const builtin=new Map(SENTENCES.map(row=>[JSON.stringify([row.en,row.sec]),row])),ids=new Map(),meanings=new Map();let changed=false;
- const update=(obj,key,value)=>{if(obj[key]!==value){obj[key]=value;changed=true;}};
- // English+section is the stable identity; changing a translation must not reset learning.
- for(const sentence of d.sentences){const row=builtin.get(JSON.stringify([sentence.en,sentence.section]));if(!row)continue;const id=JSON.stringify([row.en,row.sec]);ids.set(sentence.id,id);meanings.set(sentence.zh,row.zh);update(sentence,'id',id);update(sentence,'zh',row.zh);}
- // Append newly built-in sentences without touching existing progress, quotas or sessions.
- const present=new Set(d.sentences.map(sentence=>JSON.stringify([sentence.en,sentence.section])));
- for(const row of SENTENCES){const key=JSON.stringify([row.en,row.sec]);if(!present.has(key)){d.sentences.push(createSentence(row));present.add(key);changed=true;}}
- const byId=new Map(d.sentences.map(sentence=>[sentence.id,sentence]));
- const migrateAnswer=answer=>{if(ids.has(answer.id))update(answer,'id',ids.get(answer.id));const target=byId.get(answer.id);if(target)update(answer,'zh',target.zh);if(meanings.has(answer.chosen))update(answer,'chosen',meanings.get(answer.chosen));};
- for(const sentence of d.sentences)sentence.history.forEach(migrateAnswer);
- for(const day of Object.values(d.days))if(Array.isArray(day.newIds))day.newIds.forEach((id,i)=>{if(ids.has(id)&&ids.get(id)!==id){day.newIds[i]=ids.get(id);changed=true;}});
- if(d.session){for(const item of d.session.pending)if(ids.has(item.id))update(item,'id',ids.get(item.id));d.session.answers.forEach(migrateAnswer);}
- for(const report of d.reports){(report.answers||[]).forEach(migrateAnswer);(report.sessionAnswers||[]).forEach(migrateAnswer);}
- return changed;
-}
-function initSentenceData(){
- try{const raw=localStorage.getItem(SENTENCE_KEY);if(!raw){saveSentences(freshSentences());return;}
-  const d=validateSentenceData(JSON.parse(raw)),changed=migrateSentenceMeanings(d);validateSentenceData(d);sdb=d;if(changed)saveSentences(d);
- }catch(error){sentenceLoadError=error.message;sdb=null;}
-}
-function sentenceDayInfo(date=localDate()){return sdb.days[date]||{newIds:[]};}
-function sentenceReviews(now=Date.now()){return sdb.sentences.filter(s=>s.history.length&&(s.wrongCount>=2||s.due<=now)).sort((a,b)=>(b.wrongCount>=2)-(a.wrongCount>=2)||a.due-b.due);}
-function makeSentenceOptions(target){
- const options=[target],seen=new Set([target.zh.trim()]);
- for(const pool of [shuffled(sdb.sentences.filter(s=>s.section===target.section&&s.id!==target.id)),shuffled(sdb.sentences.filter(s=>s.id!==target.id))]){
+ if(d.sessi…706 tokens truncated…b.sentences.filter(s=>s.section===target.section&&s.id!==target.id)),shuffled(sdb.sentences.filter(s=>s.id!==target.id))]){
   for(const candidate of pool){if(seen.has(candidate.zh.trim()))continue;seen.add(candidate.zh.trim());options.push(candidate);if(options.length===3)return shuffled(options);}
  }
  return null;
@@ -1157,9 +1216,24 @@ function migrateBuiltinVocabulary(d){
 function validateStored(d){if(d?.version!==1||!Array.isArray(d.words)||!d.words.length||!d.settings||!Number.isInteger(d.settings.limit)||d.settings.limit<1||!Number.isInteger(d.settings.day)||d.settings.day<1||!d.days||!Array.isArray(d.reports))throw Error('本地数据结构不完整');const ids=new Set();for(const w of d.words){if(typeof w.id!=='string'||ids.has(w.id)||!['word','zh','section'].every(k=>typeof w[k]==='string'&&w[k].trim())||!Array.isArray(w.history)||!['ef','interval','reps','due','wrongCount'].every(k=>Number.isFinite(w[k])&&w[k]>=0))throw Error('本地词库损坏');ids.add(w.id);}if(d.stageHistory!==undefined&&!Array.isArray(d.stageHistory))throw Error('阶段测历史损坏');if(d.stageDays!==undefined&&(!d.stageDays||typeof d.stageDays!=='object'||Array.isArray(d.stageDays)))throw Error('阶段测日期记录损坏');if(d.session&&((d.session.round!==undefined&&(!Number.isInteger(d.session.round)||d.session.round<0||d.session.round>2))||!Array.isArray(d.session.pending)||!Array.isArray(d.session.answers)||!Array.isArray(d.session.prev)||d.session.pending.some(x=>!ids.has(x.id))||(d.session.correction&&(!ids.has(d.session.correction.id)||!Number.isFinite(d.session.correction.unlockAt)||!Number.isFinite(d.session.correction.seconds)))||(d.session.listeningReview&&(!ids.has(d.session.listeningReview.id)||![0,1,2].includes(d.session.listeningReview.remaining)||!Number.isFinite(d.session.listeningReview.unlockAt)||!Number.isFinite(d.session.listeningReview.notBefore)||typeof d.session.listeningReview.token!=='string'))))throw Error('本地 session 损坏');return d;}
 async function init(){setupSpeech();for(const name of ['home','report','settings'])$('nav-'+name).onclick=()=>show(name);$('nav-sentences').onclick=()=>show(sdb?.session?'sentenceStudy':'sentences');$('nav-eal').onclick=()=>show(ealDb?.session?'ealStudy':'ealHome');let raw;try{raw=localStorage.getItem(KEY);}catch{notify('浏览器禁止访问 localStorage，请允许本地存储后重试。');renderImport();return;}if(raw){try{db=validateStored(JSON.parse(raw));db.stageHistory??=[];db.stageDays??={};db.settings={autoRead:true,speechRate:1,speechVoiceId:'',...db.settings};db.settings.modeWeights={...configuredModeWeights()};const retiredChanged=migrateRetiredWords(db),vocabularyChanged=migrateBuiltinVocabulary(db);if(retiredChanged||vocabularyChanged)save();show(db.session?'study':sdb?.session?'sentenceStudy':'home');}catch(e){notify(e.message+'。未自动覆盖原始数据；请先下载保留，再重新导入。');$('view').innerHTML='<h1>本地数据无法读取</h1><button id="raw">下载原始数据</button> <button id="reset">恢复内置词库</button> <button id="custom-csv">导入自定义 CSV</button>';$('raw').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([raw],{type:'application/json'}));a.download='vocab-trainer-recovery.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);};$('reset').onclick=()=>initializeBuiltin(true);$('custom-csv').onclick=importCustomCSV;}}else initializeBuiltin();}
 document.addEventListener('keydown',e=>{if(screen==='sentenceStudy'&&!e.repeat&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!e.isComposing&&!e.target.matches('input,textarea,select')){if(['1','2','3'].includes(e.key)){e.preventDefault();answerSentence(Number(e.key)-1);}else if(e.key==='Enter'&&sentenceLocked&&$('sentence-next')&&!$('sentence-next').disabled){e.preventDefault();$('sentence-next').click();}return;}if(screen!=='study'||e.repeat||e.ctrlKey||e.metaKey||e.altKey||e.isComposing||e.target.matches('input,textarea,select'))return;if(['1','2','3'].includes(e.key)){e.preventDefault();answer(Number(e.key)-1);}else if(e.key==='Enter'&&locked&&$('next')&&!$('next').disabled){e.preventDefault();$('next').click();}});
-initSentenceData();
-initEalData();
-init().then(()=>{if(ealDb?.session&&!db?.session&&!sdb?.session&&screen!=='ealStudy')show('ealStudy');else if(sdb?.session&&!db?.session&&screen!=='sentenceStudy')show('sentenceStudy');});
+function initializeAllModules(){
+ try{initSentenceData();}catch(error){sdb=null;sentenceLoadError=error?.message||'句子模块初始化失败';console.error('Sentence module skipped',error);}
+ try{initEalData();}catch(error){ealDb=null;console.error('EAL module skipped',error);}
+ let startup;
+ try{startup=init();}catch(error){startup=Promise.reject(error);}
+ Promise.resolve(startup).then(()=>{
+  if(ealDb?.session&&!db?.session&&!sdb?.session&&screen!=='ealStudy')show('ealStudy');
+  else if(sdb?.session&&!db?.session&&screen!=='sentenceStudy')show('sentenceStudy');
+ }).catch(error=>{
+  console.error('Vocabulary module startup failed',error);
+  notify('数学词库暂时无法读取；句子和EAL模块仍可分别使用。');
+  try{$('nav-home').onclick=()=>show('home');$('nav-sentences').onclick=()=>show(sdb?.session?'sentenceStudy':'sentences');$('nav-eal').onclick=()=>show(ealDb?.session?'ealStudy':'ealHome');$('view').innerHTML='<h1>单词数据暂不可用</h1><p>数学词库初始化失败。请检查浏览器存储；句子和EAL模块仍可分别进入。</p><button id="retry-vocab">重试单词模块</button>';$('retry-vocab').onclick=()=>{try{init();}catch(e){console.error(e);}};}catch(renderError){console.error('Startup fallback render failed',renderError);}
+ });
+}
+try{initializeAllModules();}catch(error){
+ console.error('Application initialization failed',error);
+ try{notify('程序初始化遇到问题，请刷新页面重试。');$('view').innerHTML='<h1>程序暂时无法启动</h1><p>刷新页面可重试。其他模块数据不会被清除。</p>';}catch(renderError){console.error('Fatal startup fallback failed',renderError);}
+}
 </script>
 </body>
 </html>
