@@ -906,6 +906,34 @@ function createEalSentence(row){return {id:JSON.stringify([row.en,row.sec]),en:r
 function freshEal(){return {version:1,settings:{limit:12,day:1,stageExamDays:[7,14],modeWeights:{enZh:34,zhEn:33,spelling:33}},words:EAL_VOCAB.map(createEalWord),sentences:EAL_SENTENCES.map(createEalSentence),days:{},sentenceDays:{},session:null,reports:[],stageDays:{}};}
 function saveEal(next=ealDb){try{localStorage.setItem(EAL_KEY,JSON.stringify(next));ealDb=next;return true;}catch{notify('EAL数据无法保存，请检查浏览器存储。其他模块数据未改动。');return false;}}
 function cloneEal(){return JSON.parse(JSON.stringify(ealDb));}
+function initSentenceData(){
+ const defaults=freshSentences();
+ try{
+  const raw=localStorage.getItem(SENTENCE_KEY);
+  if(!raw){sdb=defaults;saveSentences(sdb);return;}
+  const parsed=JSON.parse(raw),d=parsed&&typeof parsed==='object'&&!Array.isArray(parsed)?parsed:{};
+  let changed=false;
+  if(!Array.isArray(d.sentences)){d.sentences=[];changed=true;}
+  const oldSentenceCount=d.sentences.length;
+  d.sentences=d.sentences.filter(x=>x&&typeof x==='object'&&typeof x.en==='string'&&typeof x.zh==='string'&&typeof (x.section||x.sec)==='string').map(x=>{const base=createSentence({en:x.en,zh:x.zh,sec:x.sec||x.section});return {...base,...x,id:x.id||base.id,section:x.section||x.sec,history:Array.isArray(x.history)?x.history:[]};});
+  if(oldSentenceCount!==d.sentences.length)changed=true;
+  if(!d.settings||typeof d.settings!=='object'||Array.isArray(d.settings)){d.settings={limit:6};changed=true;}
+  if(!d.days||typeof d.days!=='object'||Array.isArray(d.days)){d.days={};changed=true;}
+  if(!Array.isArray(d.reports)){d.reports=[];changed=true;}
+  if(!Object.hasOwn(d,'session')){d.session=null;changed=true;}
+  if(d.session&&(!Array.isArray(d.session.pending)||!Array.isArray(d.session.answers))){d.session=null;changed=true;}
+  d.version=1;
+  if(!Number.isInteger(d.settings.limit)||d.settings.limit<1){d.settings.limit=6;changed=true;}
+  const ids=new Set(d.sentences.filter(x=>x&&typeof x.id==='string').map(x=>x.id));
+  for(const row of SENTENCES){const x=createSentence(row);if(!ids.has(x.id)){d.sentences.push(x);ids.add(x.id);changed=true;}}
+  sdb=d;
+  if(changed)saveSentences(sdb);
+ }catch(error){
+  sdb=defaults;
+  console.error('Sentence data unavailable; using in-memory defaults',error);
+ }
+}
+
 function initEalData(){
  const defaults=freshEal();
  try{
@@ -1216,20 +1244,12 @@ function migrateBuiltinVocabulary(d){
 function validateStored(d){if(d?.version!==1||!Array.isArray(d.words)||!d.words.length||!d.settings||!Number.isInteger(d.settings.limit)||d.settings.limit<1||!Number.isInteger(d.settings.day)||d.settings.day<1||!d.days||!Array.isArray(d.reports))throw Error('本地数据结构不完整');const ids=new Set();for(const w of d.words){if(typeof w.id!=='string'||ids.has(w.id)||!['word','zh','section'].every(k=>typeof w[k]==='string'&&w[k].trim())||!Array.isArray(w.history)||!['ef','interval','reps','due','wrongCount'].every(k=>Number.isFinite(w[k])&&w[k]>=0))throw Error('本地词库损坏');ids.add(w.id);}if(d.stageHistory!==undefined&&!Array.isArray(d.stageHistory))throw Error('阶段测历史损坏');if(d.stageDays!==undefined&&(!d.stageDays||typeof d.stageDays!=='object'||Array.isArray(d.stageDays)))throw Error('阶段测日期记录损坏');if(d.session&&((d.session.round!==undefined&&(!Number.isInteger(d.session.round)||d.session.round<0||d.session.round>2))||!Array.isArray(d.session.pending)||!Array.isArray(d.session.answers)||!Array.isArray(d.session.prev)||d.session.pending.some(x=>!ids.has(x.id))||(d.session.correction&&(!ids.has(d.session.correction.id)||!Number.isFinite(d.session.correction.unlockAt)||!Number.isFinite(d.session.correction.seconds)))||(d.session.listeningReview&&(!ids.has(d.session.listeningReview.id)||![0,1,2].includes(d.session.listeningReview.remaining)||!Number.isFinite(d.session.listeningReview.unlockAt)||!Number.isFinite(d.session.listeningReview.notBefore)||typeof d.session.listeningReview.token!=='string'))))throw Error('本地 session 损坏');return d;}
 async function init(){setupSpeech();for(const name of ['home','report','settings'])$('nav-'+name).onclick=()=>show(name);$('nav-sentences').onclick=()=>show(sdb?.session?'sentenceStudy':'sentences');$('nav-eal').onclick=()=>show(ealDb?.session?'ealStudy':'ealHome');let raw;try{raw=localStorage.getItem(KEY);}catch{notify('浏览器禁止访问 localStorage，请允许本地存储后重试。');renderImport();return;}if(raw){try{db=validateStored(JSON.parse(raw));db.stageHistory??=[];db.stageDays??={};db.settings={autoRead:true,speechRate:1,speechVoiceId:'',...db.settings};db.settings.modeWeights={...configuredModeWeights()};const retiredChanged=migrateRetiredWords(db),vocabularyChanged=migrateBuiltinVocabulary(db);if(retiredChanged||vocabularyChanged)save();show(db.session?'study':sdb?.session?'sentenceStudy':'home');}catch(e){notify(e.message+'。未自动覆盖原始数据；请先下载保留，再重新导入。');$('view').innerHTML='<h1>本地数据无法读取</h1><button id="raw">下载原始数据</button> <button id="reset">恢复内置词库</button> <button id="custom-csv">导入自定义 CSV</button>';$('raw').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([raw],{type:'application/json'}));a.download='vocab-trainer-recovery.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);};$('reset').onclick=()=>initializeBuiltin(true);$('custom-csv').onclick=importCustomCSV;}}else initializeBuiltin();}
 document.addEventListener('keydown',e=>{if(screen==='sentenceStudy'&&!e.repeat&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!e.isComposing&&!e.target.matches('input,textarea,select')){if(['1','2','3'].includes(e.key)){e.preventDefault();answerSentence(Number(e.key)-1);}else if(e.key==='Enter'&&sentenceLocked&&$('sentence-next')&&!$('sentence-next').disabled){e.preventDefault();$('sentence-next').click();}return;}if(screen!=='study'||e.repeat||e.ctrlKey||e.metaKey||e.altKey||e.isComposing||e.target.matches('input,textarea,select'))return;if(['1','2','3'].includes(e.key)){e.preventDefault();answer(Number(e.key)-1);}else if(e.key==='Enter'&&locked&&$('next')&&!$('next').disabled){e.preventDefault();$('next').click();}});
-function initSentenceData(){
- try{
-  const raw=localStorage.getItem(SENTENCE_KEY);
-  if(raw===null){const initial=freshSentences();sdb=initial;saveSentences(initial);return Promise.resolve(sdb);}
-  const d=validateSentenceData(JSON.parse(raw)),changed=migrateSentenceMeanings(d);
-  validateSentenceData(d);sdb=d;if(changed)saveSentences(d);
- }catch(error){sentenceLoadError=error?.message||'句子模块初始化失败';sdb=null;}
- return Promise.resolve(sdb);
-}
 function initializeAllModules(){
- let sentenceReady=Promise.resolve();
- try{sentenceReady=initSentenceData();}catch(error){sdb=null;sentenceLoadError=error?.message||'句子模块初始化失败';console.error('Sentence module skipped',error);}
+ try{initSentenceData();}catch(error){sdb=null;sentenceLoadError=error?.message||'句子模块初始化失败';console.error('Sentence module skipped',error);}
  try{initEalData();}catch(error){ealDb=null;console.error('EAL module skipped',error);}
- Promise.resolve(sentenceReady).then(()=>init()).then(()=>{
+ let startup;
+ try{startup=init();}catch(error){startup=Promise.reject(error);}
+ Promise.resolve(startup).then(()=>{
   if(ealDb?.session&&!db?.session&&!sdb?.session&&screen!=='ealStudy')show('ealStudy');
   else if(sdb?.session&&!db?.session&&screen!=='sentenceStudy')show('sentenceStudy');
  }).catch(error=>{
