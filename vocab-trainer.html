@@ -1154,6 +1154,9 @@ function validateSentenceData(d){
  }
  return null;
 }
+function sentenceDayInfo(){return sdb.days[localDate()]||{newIds:[]};}
+function sentenceReviews(now=Date.now()){return sdb.sentences.filter(s=>s.history.length&&(s.wrongCount>=2||s.due<=now)).sort((a,b)=>(b.wrongCount>=2)-(a.wrongCount>=2)||a.due-b.due);}
+
 function renderSentenceHome(){
  if(!sdb){$('view').innerHTML=`<h1>句子数据暂不可用</h1><p class="subtitle">${esc(sentenceLoadError||'浏览器无法保存句子数据')}。原数据未覆盖，单词训练可继续。</p><button id="recover-sentences">下载原始句子数据</button>`;$('recover-sentences').onclick=()=>{try{const raw=localStorage.getItem(SENTENCE_KEY);if(raw===null)throw Error();downloadText(raw,'sentences-recovery.json');}catch{notify('原始句子数据无法读取，请检查浏览器存储。');}};return;}
  const used=sentenceDayInfo().newIds.length,remaining=Math.max(0,sdb.settings.limit-used),fresh=sdb.sentences.filter(s=>!s.history.length).length,due=sentenceReviews().length,learned=sdb.sentences.length-fresh;
