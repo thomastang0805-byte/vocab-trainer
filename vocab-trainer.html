@@ -218,380 +218,430 @@ const BUILTIN_VOCAB = [
 ];
 const SENTENCES = [
   {
-    "en": "Find the equation of the tangent to the curve y = x^2 - 3x at the point where x = 4.",
+    "en": "Find the equation of the tangent to the graph of y = x² - 3x at the point where x = 4.",
     "zh": "求曲线在给定点处的切线方程。",
     "sec": "18A"
   },
   {
-    "en": "Find the equation of the normal to the curve y = x^3 - 2x at x = 1.",
+    "en": "Find the equation of the normal to the graph of y = x³ - 2x at the point where x = 1.",
     "zh": "求曲线在给定点处的法线方程。",
     "sec": "18A"
   },
   {
-    "en": "Find the point on the curve y = x^2 + 1 at which the tangent is parallel to the line y = 4x.",
-    "zh": "求曲线上切线与已知直线平行的点。",
+    "en": "A straight line is a tangent to the graph of y = x² + 1 at the point where the tangent is parallel to the line y = 4x. Find the coordinates of this point.",
+    "zh": "求曲线上切线与已知直线平行的点的坐标。",
     "sec": "18A"
   },
   {
-    "en": "The tangent to y = x^2 + ax at x = 2 has gradient 5. Find the value of a.",
+    "en": "The tangent to the graph of y = x² + ax at x = 2 has gradient 5, where a is a constant. Find the value of a.",
     "zh": "求使曲线在给定点处切线斜率为给定值的参数。",
     "sec": "18A"
   },
   {
-    "en": "Show that the line y = 2x - 1 is a tangent to the curve y = x^2.",
+    "en": "Show that the line y = 2x - 1 is a tangent to the curve y = x².",
     "zh": "证明给定直线是曲线的切线。",
     "sec": "18A"
   },
   {
-    "en": "Find the average rate of change of y with respect to x between x = 1 and x = 3.",
-    "zh": "求某量在指定区间内的平均变化率。",
-    "sec": "18B"
-  },
-  {
-    "en": "Find the instantaneous rate of change of V with respect to t when t = 2.",
-    "zh": "求某量在指定时刻的瞬时变化率。",
-    "sec": "18B"
-  },
-  {
-    "en": "Find the rate of change of y with respect to x at the point where x = 2.",
-    "zh": "求某量在给定点处的变化率。",
-    "sec": "18B"
-  },
-  {
-    "en": "Find the gradient of the chord joining the points where x = 1 and x = 3.",
-    "zh": "求连接曲线上两点的弦的斜率。",
-    "sec": "18B"
-  },
-  {
-    "en": "The volume of water in the tank is decreasing at a rate of 2 litres per minute.",
-    "zh": "某容器的体积以恒定速率减少。",
-    "sec": "18B"
-  },
-  {
-    "en": "Find the stationary points of f(x) = x^3 - 6x^2 + 9x and state their coordinates.",
-    "zh": "求函数的驻点并写出坐标。",
-    "sec": "18C"
-  },
-  {
-    "en": "For what values of x is the gradient of the curve zero?",
-    "zh": "求使曲线斜率为零的x值。",
-    "sec": "18C"
-  },
-  {
-    "en": "The graph of y = x^3 + px has a stationary point at x = 2. Find the value of p.",
-    "zh": "求使曲线在给定点处有驻点的参数。",
-    "sec": "18C"
-  },
-  {
-    "en": "Determine the nature of each stationary point.",
-    "zh": "判断各驻点的类型（极大/极小/驻拐点）。",
-    "sec": "18D"
-  },
-  {
-    "en": "Sketch the graph of y = x^3 - 3x, labelling all intercepts and stationary points.",
-    "zh": "画函数草图并标注交点与驻点。",
-    "sec": "18D"
-  },
-  {
-    "en": "For what values of x is the function increasing?",
-    "zh": "求函数单调递增的x取值范围。",
-    "sec": "18D"
-  },
-  {
-    "en": "A farmer has 100 m of fencing. Find the maximum area of the enclosure.",
-    "zh": "已知围栏总长固定，求围成区域的最大面积。",
-    "sec": "18E"
-  },
-  {
-    "en": "Find the minimum value of f(x) on the interval [-1, 3].",
-    "zh": "求函数在给定区间上的最小值。",
-    "sec": "18E"
-  },
-  {
-    "en": "Show that the maximum area occurs when x = 25.",
-    "zh": "证明目标量在某特定取值处取得最大值。",
-    "sec": "18E"
-  },
-  {
-    "en": "A box is made from a sheet of cardboard. Show that the volume is given by V(x) = ...",
-    "zh": "根据实际情境推导体积表达式。",
-    "sec": "18E"
-  },
-  {
-    "en": "A particle moves in a straight line so that its position x metres from the origin at time t seconds is given by x(t) = t^2 - 4t.",
-    "zh": "粒子沿直线运动，其位置随时间变化的关系已知。",
-    "sec": "18F"
-  },
-  {
-    "en": "Find the velocity of the particle at time t.",
-    "zh": "求粒子在给定时刻的速度。",
-    "sec": "18F"
-  },
-  {
-    "en": "The particle is at rest when t = ...",
-    "zh": "求粒子处于静止状态的时刻。",
-    "sec": "18F"
-  },
-  {
-    "en": "Find the distance travelled by the particle in the first 4 seconds.",
-    "zh": "求粒子在指定时间段内经过的路程。",
-    "sec": "18F"
-  },
-  {
-    "en": "Find the time at which the particle changes direction.",
-    "zh": "求粒子改变运动方向的时刻。",
-    "sec": "18F"
-  },
-  {
-    "en": "Find the speed of the particle when t = 3.",
-    "zh": "求粒子在给定时刻的速率。",
-    "sec": "18F"
-  },
-  {
-    "en": "The graph of y = f(x) is translated 3 units in the positive x-direction. Find the equation of the image.",
-    "zh": "求图像平移后的方程。",
-    "sec": "18G"
-  },
-  {
-    "en": "The graph is dilated by factor 2 from the y-axis. Find the image of the point (1, 4).",
-    "zh": "求给定点经伸缩变换后的像。",
-    "sec": "18G"
-  },
-  {
-    "en": "The point (2, 3) is mapped to (2, -3) under the transformation. Describe the transformation.",
-    "zh": "描述给定点在变换下的映射并判断变换类型。",
-    "sec": "18G"
-  },
-  {
-    "en": "Use Newton's method to find the root of x^3 - 2 = 0 correct to two decimal places, using x0 = 1 as the initial approximation.",
-    "zh": "用牛顿法求方程的近似根（精确到指定精度）。",
-    "sec": "18H"
-  },
-  {
-    "en": "Use one application of Newton's method to find an approximation to the root of f(x) = 0.",
-    "zh": "用一次牛顿迭代求根的近似值。",
-    "sec": "18H"
-  },
-  {
-    "en": "Show that the equation x^3 - 5x + 1 = 0 has a root between 0 and 1.",
-    "zh": "证明方程在给定区间内有根。",
-    "sec": "18H"
-  },
-  {
-    "en": "The iterative formula is x_{n+1} = x_n - f(x_n)/f'(x_n).",
-    "zh": "写出牛顿法的迭代公式。",
-    "sec": "18H"
-  },
-  {
-    "en": "Find the equation of the tangent and the normal at the given point for f(x) = x^2.",
+    "en": "Find the equations of the tangent and the normal to the graph of f(x) = x² at the point where x = 1.",
     "zh": "求函数在给定点的切线方程和法线方程。",
     "sec": "18A"
   },
   {
-    "en": "Find the equation of the tangent to the curve at the point of intersection with the y-axis.",
+    "en": "Find the equation of the tangent to the curve at the point where the graph cuts the y-axis.",
     "zh": "求曲线与y轴交点处的切线方程。",
     "sec": "18A"
   },
   {
-    "en": "Show that these tangents are parallel and find the perpendicular distance between them.",
-    "zh": "证明这些切线互相平行，并求它们之间的垂直距离。",
+    "en": "Show that the two tangents to the curve y = x² - 4x are parallel, and find the perpendicular distance between them.",
+    "zh": "证明曲线的两条切线互相平行，并求它们之间的垂直距离。",
     "sec": "18A"
   },
   {
-    "en": "Find the equations of the tangents to the curve which are parallel to the given line.",
+    "en": "Find the equations of all tangents to the curve y = x³ - x which are parallel to the line y = 2x + 5.",
     "zh": "求曲线上与已知直线平行的所有切线方程。",
     "sec": "18A"
   },
   {
-    "en": "At what point does the normal to the curve cut the y-axis?",
-    "zh": "曲线的法线在何处与y轴相交？",
+    "en": "Find the coordinates of the point where the normal to the graph of y = x² at x = 1 cuts the y-axis.",
+    "zh": "求曲线的法线与y轴相交的点的坐标。",
     "sec": "18A"
   },
   {
-    "en": "Find and simplify dy/dx for the given function.",
+    "en": "Find the average rate of change of y with respect to x over the interval [1, 3] for the function y = x².",
+    "zh": "求函数在指定区间上的平均变化率。",
+    "sec": "18B"
+  },
+  {
+    "en": "Find the instantaneous rate of change of V with respect to t when t = 2, given V(t) = t³ - 3t².",
+    "zh": "求函数在指定时刻的瞬时变化率。",
+    "sec": "18B"
+  },
+  {
+    "en": "Find the rate of change of y with respect to x at the point on the curve y = x³ where x = 2.",
+    "zh": "求函数在给定点处的变化率。",
+    "sec": "18B"
+  },
+  {
+    "en": "Find the gradient of the chord joining the points on the curve y = x² where x = 1 and x = 3.",
+    "zh": "求连接曲线上两点的弦的斜率。",
+    "sec": "18B"
+  },
+  {
+    "en": "The volume of water in a tank is given by V(t) = 100 - 2t. Find the rate at which the volume is decreasing.",
+    "zh": "求容器内体积减少的速率。",
+    "sec": "18B"
+  },
+  {
+    "en": "Find and simplify dy/dx for y = (x² + 1)(x - 3).",
     "zh": "求并化简给定函数的导数。",
     "sec": "18B"
   },
   {
-    "en": "Find the instantaneous rate of change of f with respect to x when x = a.",
-    "zh": "求x取给定值时f关于x的瞬时变化率。",
+    "en": "Find the instantaneous rate of change of f with respect to x when x = a for f(x) = x² - 2x.",
+    "zh": "求x取给定值时函数关于x的瞬时变化率。",
     "sec": "18B"
   },
   {
-    "en": "If dy/dx > 0, the change is an increase in the value of y corresponding to an increase in x.",
-    "zh": "若导数大于零，则y随x的增大而增大。",
+    "en": "If dy/dx > 0 for all x in an interval, state what this tells you about the behaviour of y as x increases.",
+    "zh": "判断导数为正时函数值随自变量的变化趋势。",
     "sec": "18B"
   },
   {
-    "en": "A container is being filled with water. Find the rate of change of the volume with respect to time.",
-    "zh": "容器正在注水，求体积关于时间的变化率。",
-    "sec": "18B"
-  },
-  {
-    "en": "Find the stationary points (and state their type) for each of the following functions.",
-    "zh": "求下列函数的驻点并指出其类型。",
+    "en": "Find the stationary points of f(x) = x³ - 6x² + 9x and state their coordinates.",
+    "zh": "求函数的驻点并写出坐标。",
     "sec": "18C"
   },
   {
-    "en": "Find the coordinates of the points on the curve where the tangent is parallel to the x-axis.",
-    "zh": "求曲线上切线平行于x轴的点。",
+    "en": "For what values of x is the gradient of the curve y = x³ - 3x equal to zero?",
+    "zh": "求使曲线斜率为零的x值。",
     "sec": "18C"
   },
   {
-    "en": "The curve cuts the x-axis at three points. Prove that the tangents at the first and third points are parallel.",
+    "en": "The graph of y = x³ + px has a stationary point at x = 2, where p is a constant. Find the value of p.",
+    "zh": "求使曲线在给定点处有驻点的参数值。",
+    "sec": "18C"
+  },
+  {
+    "en": "Determine the nature of each stationary point of the function f(x) = x³ - 3x².",
+    "zh": "判断各驻点的类型（极大/极小/驻拐点）。",
+    "sec": "18C"
+  },
+  {
+    "en": "Sketch the graph of y = x³ - 3x, labelling all x-intercepts and stationary points with their coordinates.",
+    "zh": "画函数草图并标注所有x截距与驻点坐标。",
+    "sec": "18C"
+  },
+  {
+    "en": "For what values of x is the function f(x) = x³ - 3x increasing?",
+    "zh": "求函数单调递增的x取值范围。",
+    "sec": "18C"
+  },
+  {
+    "en": "Find the coordinates of the points on the curve y = x⁴ - 2x² where the tangent is parallel to the x-axis.",
+    "zh": "求曲线上切线平行于x轴的点的坐标。",
+    "sec": "18C"
+  },
+  {
+    "en": "The curve y = x³ - 3x cuts the x-axis at three points. Prove that the tangents at the first and third x-intercepts are parallel.",
     "zh": "曲线与x轴有三个交点，证明首尾两点处的切线平行。",
     "sec": "18C"
   },
   {
-    "en": "Show that the given line is the equation of the tangent to the curve at the point (a, a^2 + 3).",
+    "en": "Show that the line y = 2x + 1 is the equation of the tangent to the curve y = x² + x + 1 at the point (0, 1).",
     "zh": "证明给定直线是曲线在指定点处的切线方程。",
     "sec": "18C"
   },
   {
-    "en": "Show that k = 1/64.",
-    "zh": "证明参数k等于给定值。",
-    "sec": "18C"
-  },
-  {
-    "en": "Sketch the graph of f on the axes below, labelling all asymptotes with their equations and axial intercepts with their coordinates.",
-    "zh": "在给定坐标轴上画函数图像，标注所有渐近线方程和坐标轴交点。",
+    "en": "Sketch the graph of y = 1/x on the axes provided, labelling all asymptotes with their equations and all axial intercepts with their coordinates.",
+    "zh": "在给定坐标轴上画函数图像，标注所有渐近线方程和坐标轴交点坐标。",
     "sec": "18D"
   },
   {
-    "en": "Sketch the graph of the cubic and state the coordinates of the stationary points.",
+    "en": "Sketch the graph of the cubic function y = x³ - 3x² and state the coordinates of the stationary points.",
     "zh": "画三次函数草图，并写出驻点坐标。",
     "sec": "18D"
   },
   {
-    "en": "For what values of x is the function decreasing?",
-    "zh": "x取何值时函数递减？",
+    "en": "For what values of x is the function f(x) = x³ - 3x² decreasing?",
+    "zh": "求函数单调递减的x取值范围。",
     "sec": "18D"
   },
   {
-    "en": "State why the stationary point is neither a local maximum nor a local minimum.",
+    "en": "State why the stationary point at x = 0 for f(x) = x³ is neither a local maximum nor a local minimum.",
     "zh": "说明为什么该驻点既不是极大点也不是极小点。",
     "sec": "18D"
   },
   {
-    "en": "Verify that f and g both have a turning point at P, and give the coordinates of P.",
-    "zh": "验证f和g都在P点有转折点，并写出P的坐标。",
+    "en": "Verify that f(x) = x² and g(x) = x² - 4 both have a turning point at the origin, and give the coordinates of this point.",
+    "zh": "验证两个函数都在给定点有转折点，并写出该点坐标。",
     "sec": "18D"
   },
   {
-    "en": "A farmer has 60 m of fencing with which to construct three sides of a rectangular yard connected to an existing fence. Find the maximum possible area.",
-    "zh": "农夫用给定长度的围栏靠已有篱笆围三面矩形院子，求最大面积。",
+    "en": "State the equations of the vertical and horizontal asymptotes of the graph of y = (2x + 1)/(x - 3).",
+    "zh": "写出函数图像的垂直渐近线和水平渐近线方程。",
+    "sec": "18D"
+  },
+  {
+    "en": "Find the coordinates of the points where the graph of y = x³ - 3x cuts the x-axis.",
+    "zh": "求函数图像与x轴交点的坐标。",
+    "sec": "18D"
+  },
+  {
+    "en": "Show that the graph of y = x³ - 3x² has a point of inflection at x = 1.",
+    "zh": "证明函数图像在给定点处有拐点。",
+    "sec": "18D"
+  },
+  {
+    "en": "A farmer has 100 m of fencing with which to construct a rectangular enclosure. Find the dimensions that give the maximum area.",
+    "zh": "已知围栏总长固定，求围成矩形区域的最大面积及对应尺寸。",
     "sec": "18E"
   },
   {
-    "en": "A box is made from a sheet of cardboard by cutting equal squares from each corner. Find the value of x that gives the maximum volume.",
-    "zh": "纸板四角剪去相同正方形折成纸盒，求使体积最大的x值。",
-    "sec": "18E"
-  },
-  {
-    "en": "Find the minimum value of the function on the given closed interval.",
+    "en": "Find the minimum value of f(x) = x² - 4x + 5 on the closed interval [-1, 3].",
     "zh": "求函数在给定闭区间上的最小值。",
     "sec": "18E"
   },
   {
-    "en": "Find the maximum value of the product of two numbers whose sum is given.",
-    "zh": "求两数之和为定值时乘积的最大值。",
+    "en": "Show that the maximum area of a rectangular enclosure occurs when the width equals the length.",
+    "zh": "证明目标量在某特定条件下取得最大值。",
     "sec": "18E"
   },
   {
-    "en": "Find the values of x for which the function has a maximum value of 10.",
-    "zh": "求函数取得最大值10时的x值。",
+    "en": "A box is made from a sheet of cardboard measuring 20 cm by 30 cm by cutting equal squares of side x cm from each corner. Show that the volume is V(x) = x(20 - 2x)(30 - 2x).",
+    "zh": "根据实际情境推导体积表达式。",
     "sec": "18E"
   },
   {
-    "en": "Find the average velocity of the particle over the first 3 seconds.",
-    "zh": "求粒子最初3秒内的平均速度。",
+    "en": "A farmer has 60 m of fencing with which to construct three sides of a rectangular yard connected to an existing fence. Find the maximum possible area.",
+    "zh": "用给定长度的围栏靠已有篱笆围三面矩形院子，求最大面积。",
+    "sec": "18E"
+  },
+  {
+    "en": "A box is made from a sheet of cardboard by cutting equal squares from each corner and folding up the sides. Find the value of x that gives the maximum volume.",
+    "zh": "纸板四角剪去相同正方形折成纸盒，求使体积最大的边长值。",
+    "sec": "18E"
+  },
+  {
+    "en": "Find the maximum value of the product of two positive numbers whose sum is 20.",
+    "zh": "求两正数之和为定值时乘积的最大值。",
+    "sec": "18E"
+  },
+  {
+    "en": "Find the values of x for which the function f(x) = -x² + 4x + 5 has a maximum value of 9.",
+    "zh": "求函数取得给定最大值时的x值。",
+    "sec": "18E"
+  },
+  {
+    "en": "A particle moves in a straight line so that its position x metres from the origin at time t seconds is given by x(t) = t² - 4t. Find the velocity of the particle at time t.",
+    "zh": "已知粒子位置随时间变化的函数，求粒子在给定时刻的速度。",
     "sec": "18F"
   },
   {
-    "en": "Find the maximum speed attained by the particle.",
-    "zh": "求粒子达到的最大速率。",
+    "en": "A particle moves in a straight line with position x(t) = t³ - 6t² + 9t. Find the time at which the particle is at rest.",
+    "zh": "求粒子处于静止状态的时刻。",
     "sec": "18F"
   },
   {
-    "en": "How many times does the particle return to the origin in the first 5 seconds?",
-    "zh": "粒子在最初5秒内几次回到原点？",
+    "en": "Find the distance travelled by the particle whose position is x(t) = t² - 4t in the first 4 seconds.",
+    "zh": "求粒子在指定时间段内经过的路程。",
     "sec": "18F"
   },
   {
-    "en": "Find the distance travelled by the particle while it is moving in the negative direction.",
-    "zh": "求粒子沿负方向运动期间经过的路程。",
+    "en": "A particle moves along a straight line with velocity v(t) = 3t² - 12t + 9. Find the time at which the particle changes direction.",
+    "zh": "求粒子改变运动方向的时刻。",
     "sec": "18F"
   },
   {
-    "en": "Find the acceleration of the particle when t = 2.",
-    "zh": "求给定时刻粒子的加速度。",
+    "en": "Find the speed of the particle with position x(t) = t² - 4t when t = 3.",
+    "zh": "求粒子在给定时刻的速率。",
     "sec": "18F"
+  },
+  {
+    "en": "Find the average velocity of the particle with position x(t) = t² - 4t over the first 3 seconds.",
+    "zh": "求粒子在指定时间段内的平均速度。",
+    "sec": "18F"
+  },
+  {
+    "en": "Find the maximum speed attained by the particle whose velocity is v(t) = 3t² - 12t + 9 for t ≥ 0.",
+    "zh": "求粒子在给定区间内达到的最大速率。",
+    "sec": "18F"
+  },
+  {
+    "en": "Find the acceleration of the particle with position x(t) = t³ - 3t² when t = 2.",
+    "zh": "求粒子在给定时刻的加速度。",
+    "sec": "18F"
+  },
+  {
+    "en": "The graph of y = f(x) is translated 3 units in the positive x-direction. Find the equation of the image.",
+    "zh": "求图像沿x轴正方向平移后的方程。",
+    "sec": "18G"
+  },
+  {
+    "en": "The graph of y = f(x) is dilated by factor 2 from the y-axis. Find the image of the point (1, 4).",
+    "zh": "求给定点经从y轴方向伸缩变换后的像。",
+    "sec": "18G"
+  },
+  {
+    "en": "The point (2, 3) is mapped to (2, -3) under a transformation of the graph y = f(x). Describe the transformation fully.",
+    "zh": "完整描述把给定图像映射为指定图像的变换。",
+    "sec": "18G"
   },
   {
     "en": "The graph of y = f(x) is reflected in the x-axis. Find the equation of the image.",
-    "zh": "图像关于x轴反射，求变换后的方程。",
+    "zh": "求图像关于x轴反射后的方程。",
     "sec": "18G"
   },
   {
     "en": "The graph of y = f(x) is dilated by factor 3 from the x-axis. Find the equation of the image.",
-    "zh": "图像从x轴方向以因子3伸缩，求变换后的方程。",
+    "zh": "求图像从x轴方向以给定因子伸缩后的方程。",
     "sec": "18G"
   },
   {
-    "en": "State a sequence of transformations that maps the graph of f onto the graph of g.",
-    "zh": "写出一组把f的图像变换为g的图像的变换序列。",
+    "en": "State a sequence of transformations that maps the graph of f(x) = x² onto the graph of g(x) = (x - 2)² + 3.",
+    "zh": "写出一组把给定图像变换为目标图像的变换序列。",
     "sec": "18G"
   },
   {
-    "en": "The point (a, b) is mapped to (b, a) under the transformation. Describe the transformation fully.",
-    "zh": "点(a,b)被映射到(b,a)，完整描述该变换。",
+    "en": "The point (a, b) is mapped to (b, a) under a transformation. Describe the transformation fully.",
+    "zh": "完整描述把点(a,b)映射为(b,a)的变换。",
     "sec": "18G"
   },
   {
-    "en": "Use two iterations of Newton's method to approximate the root, starting from x0 = 1.",
-    "zh": "从给定初值出发，用两次牛顿迭代求根的近似值。",
+    "en": "Use Newton's method to find the root of x³ - 2 = 0 correct to two decimal places, using x₀ = 1 as the initial approximation.",
+    "zh": "用牛顿法求方程的近似根（精确到指定小数位）。",
     "sec": "18H"
   },
   {
-    "en": "Explain why Newton's method fails to converge for this function with the given starting point.",
-    "zh": "解释为何牛顿法在该初值下不收敛。",
+    "en": "Use one application of Newton's method to find an approximation to the root of f(x) = x² - 3 = 0, starting from x₀ = 2.",
+    "zh": "用一次牛顿迭代求方程根的近似值。",
     "sec": "18H"
   },
   {
-    "en": "Find, correct to three decimal places, the root of the equation.",
-    "zh": "求方程的根，精确到三位小数。",
+    "en": "Show that the equation x³ - 5x + 1 = 0 has a root between 0 and 1.",
+    "zh": "证明方程在给定区间内有根。",
     "sec": "18H"
   },
   {
-    "en": "Write down the iterative formula for the given function.",
+    "en": "Write down the iterative formula xₙ₊₁ = xₙ - f(xₙ)/f'(xₙ) for f(x) = x² - 3.",
     "zh": "写出给定函数的牛顿迭代公式。",
     "sec": "18H"
   },
   {
-    "en": "Hence, or otherwise, find all values of k that satisfy the equation.",
-    "zh": "由此或其他方法，求满足方程的k的所有取值。",
+    "en": "Use two iterations of Newton's method to approximate the root of x³ - x - 1 = 0, starting from x₀ = 1.",
+    "zh": "从给定初值出发，用两次牛顿迭代求方程根的近似值。",
     "sec": "18H"
   },
-  {"en":"Find the probability that both events occur.","zh":"求两个事件同时发生的概率。","sec":"prob"},
-  {"en":"Show that the events are independent.","zh":"证明事件互相独立。","sec":"prob"},
-  {"en":"Find the probability of A given B.","zh":"求在B发生的条件下A的概率。","sec":"prob"},
-  {"en":"A fair die is rolled. Find the probability of rolling a prime number.","zh":"掷一个公平骰子，求掷出质数的概率。","sec":"prob"},
-  {"en":"Two cards are drawn without replacement. Find the probability that both are red.","zh":"不放回地抽两张牌，求两张都是红色的概率。","sec":"prob"},
-  {"en":"Find the number of permutations of n objects taken r at a time.","zh":"求从n个物体中取r个的排列数。","sec":"prob"},
-  {"en":"A random variable X has a binomial distribution with parameters n and p.","zh":"随机变量X服从参数为n和p的二项分布。","sec":"prob"},
-  {"en":"Find the expected value and standard deviation of the distribution.","zh":"求分布的期望值和标准差。","sec":"prob"},
-  {"en":"Find the probability using a tree diagram.","zh":"用树状图求概率。","sec":"prob"},
-  {"en":"Find the number of elements in the intersection of A and B.","zh":"求A与B交集中的元素个数。","sec":"prob"},
-  {"en":"State the domain and range of the function.","zh":"写出函数的定义域和值域。","sec":"u3f"},
-  {"en":"Find the inverse function f⁻¹(x).","zh":"求反函数f⁻¹(x)。","sec":"u3f"},
-  {"en":"Show that f and g are inverse functions.","zh":"证明f和g互为反函数。","sec":"u3f"},
-  {"en":"Find the rule for the composite function f(g(x)).","zh":"求复合函数f(g(x))的表达式。","sec":"u3f"},
-  {"en":"Sketch the graph of the function, labelling all asymptotes.","zh":"画函数草图，标注所有渐近线。","sec":"u3f"},
-  {"en":"State the equations of the asymptotes.","zh":"写出渐近线方程。","sec":"u3f"},
-  {"en":"Find the maximal domain of the function.","zh":"求函数的最大定义域。","sec":"u3f"},
-  {"en":"Describe the transformation that maps the graph of f onto the graph of g.","zh":"描述把f的图像变换为g的图像的变换。","sec":"u3f"},
-  {"en":"Find the coordinates of the image of the given point under the transformation.","zh":"求给定点在变换下的像的坐标。","sec":"u3f"},
-  {"en":"State whether the function is one-to-one or many-to-one.","zh":"判断函数是一对一还是多对一。","sec":"u3f"}
+  {
+    "en": "Explain why Newton's method fails to converge for f(x) = x^(1/3) with the starting point x₀ = 1.",
+    "zh": "解释为何牛顿法在该初值下不收敛。",
+    "sec": "18H"
+  },
+  {
+    "en": "Find, correct to three decimal places, the root of the equation x³ + x - 1 = 0 using Newton's method.",
+    "zh": "用牛顿法求方程的根，精确到三位小数。",
+    "sec": "18H"
+  },
+  {
+    "en": "Hence, or otherwise, find all values of k that satisfy the equation x³ - 3x + k = 0, where k is a constant.",
+    "zh": "由此或其他方法，求满足方程的参数的所有取值。",
+    "sec": "18H"
+  },
+  {
+    "en": "A fair die is rolled and a fair coin is tossed. Find the probability that the die shows a prime number and the coin shows heads.",
+    "zh": "求两个事件同时发生的概率。",
+    "sec": "prob"
+  },
+  {
+    "en": "Events A and B are such that P(A) = 0.4, P(B) = 0.5, and P(A ∩ B) = 0.2. Show that A and B are independent.",
+    "zh": "证明两个事件互相独立。",
+    "sec": "prob"
+  },
+  {
+    "en": "Given P(A) = 0.6 and P(B|A) = 0.3, find the probability of A and B both occurring.",
+    "zh": "求在已知条件下两个事件同时发生的概率。",
+    "sec": "prob"
+  },
+  {
+    "en": "A fair six-sided die is rolled once. Find the probability of rolling a number greater than 4.",
+    "zh": "求掷骰子得到大于给定值的数的概率。",
+    "sec": "prob"
+  },
+  {
+    "en": "Two cards are drawn without replacement from a standard deck of 52 cards. Find the probability that both cards are red.",
+    "zh": "不放回地抽两张牌，求两张都是指定颜色的概率。",
+    "sec": "prob"
+  },
+  {
+    "en": "Find the number of permutations of 5 objects taken 3 at a time.",
+    "zh": "求从给定数量物体中取指定数量的排列数。",
+    "sec": "prob"
+  },
+  {
+    "en": "A random variable X has a binomial distribution with parameters n = 10 and p = 0.3. Find P(X = 2).",
+    "zh": "求二项分布随机变量取给定值的概率。",
+    "sec": "prob"
+  },
+  {
+    "en": "A discrete random variable X has the probability distribution shown in the table. Find the expected value E(X).",
+    "zh": "求离散随机变量的期望值。",
+    "sec": "prob"
+  },
+  {
+    "en": "Use a tree diagram to find the probability that a student who studies passes the exam, given that 80% of students study and 90% of those who study pass.",
+    "zh": "用树状图求在已知条件下的概率。",
+    "sec": "prob"
+  },
+  {
+    "en": "Find the number of elements in the intersection of sets A and B, given n(A) = 20, n(B) = 15, and n(A ∪ B) = 28.",
+    "zh": "求两个集合交集中的元素个数。",
+    "sec": "prob"
+  },
+  {
+    "en": "State the domain and range of the function f(x) = √(x - 2).",
+    "zh": "写出函数的定义域和值域。",
+    "sec": "u3f"
+  },
+  {
+    "en": "Find the inverse function f⁻¹(x) for f(x) = 2x + 3.",
+    "zh": "求给定函数的反函数。",
+    "sec": "u3f"
+  },
+  {
+    "en": "Show that f(x) = 2x + 1 and g(x) = (x - 1)/2 are inverse functions.",
+    "zh": "证明两个函数互为反函数。",
+    "sec": "u3f"
+  },
+  {
+    "en": "Find the rule for the composite function f(g(x)), where f(x) = x² and g(x) = x + 1.",
+    "zh": "求两个函数的复合函数的表达式。",
+    "sec": "u3f"
+  },
+  {
+    "en": "Sketch the graph of f(x) = 1/(x - 2), labelling all asymptotes with their equations.",
+    "zh": "画函数草图，标注所有渐近线方程。",
+    "sec": "u3f"
+  },
+  {
+    "en": "State the equations of the asymptotes of the graph of y = (3x + 1)/(x - 2).",
+    "zh": "写出函数图像的渐近线方程。",
+    "sec": "u3f"
+  },
+  {
+    "en": "Find the maximal domain of the function f(x) = 1/√(x - 3).",
+    "zh": "求函数的最大定义域。",
+    "sec": "u3f"
+  },
+  {
+    "en": "Describe the transformation that maps the graph of f(x) = x² onto the graph of g(x) = (x - 1)² + 2.",
+    "zh": "描述把给定函数图像变换为目标图像的变换。",
+    "sec": "u3f"
+  },
+  {
+    "en": "State whether the function f(x) = x³ is one-to-one or many-to-one, giving a reason.",
+    "zh": "判断函数是一对一还是多对一，并说明理由。",
+    "sec": "u3f"
+  }
 ];
 const EAL_VOCAB = [
   {"word": "conformity", "zh": "从众；符合", "sec": "eal-social"},
